@@ -18,7 +18,6 @@ export default function DashboardPage() {
     activeGroups: 0,
     recentExpenses: 0,
   })
-  // Import the Activity type from the component that uses it
   interface Activity {
     id: number;
     type: 'expense' | 'settlement' | 'group';
@@ -31,9 +30,6 @@ export default function DashboardPage() {
     };
     created_at: Date;
     status?: 'pending' | 'completed';
-    // Additional fields that might be used by specific activity types
-    expense_id?: number;
-    expense_title?: string;
   }
 
   const [activities, setActivities] = useState<Activity[]>([])
@@ -61,8 +57,6 @@ export default function DashboardPage() {
             user: { name: "John Doe" },
             created_at: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
             status: "pending",
-            expense_id: 1,
-            expense_title: "Dinner at Restaurant",
           },
           {
             id: 2,
@@ -76,16 +70,11 @@ export default function DashboardPage() {
           },
           {
             id: 3,
-            type: "group" as const,
+            type: "group",
             title: "Joined Weekend Trip group",
             description: "Added to group by Bob Wilson",
-            amount: undefined, // Not needed for group type
-            user: { 
-              name: "Bob Wilson",
-              avatar_url: undefined 
-            },
+            user: { name: "Bob Wilson" },
             created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-            status: undefined, // Not needed for group type
           },
         ])
 
