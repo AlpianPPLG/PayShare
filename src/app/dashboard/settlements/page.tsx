@@ -99,8 +99,8 @@ export default function SettlementsPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Settlements</h1>
-              <p className="text-gray-600">Track payments and settle debts</p>
+              <h1 className="text-3xl font-bold text-foreground">Settlements</h1>
+              <p className="text-muted-foreground">Track payments and settle debts</p>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={recalculateBalances}>

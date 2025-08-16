@@ -57,8 +57,8 @@ export default function GroupsPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Groups</h1>
-              <p className="text-gray-600">Manage your expense groups and members</p>
+              <h1 className="text-3xl font-bold text-foreground">Groups</h1>
+              <p className="text-muted-foreground">Manage your expense groups and members</p>
             </div>
             <CreateGroupDialog onGroupCreated={fetchGroups} />
           </div>

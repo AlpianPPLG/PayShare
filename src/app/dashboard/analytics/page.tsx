@@ -125,11 +125,11 @@ export default function AnalyticsPage() {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+            <h1 className="text-3xl font-bold text-foreground flex items-center">
               <BarChart3 className="h-8 w-8 mr-3" />
               Analytics & Reports
             </h1>
-            <p className="text-gray-600">Insights into your spending patterns and financial habits</p>
+            <p className="text-muted-foreground">Insights into your spending patterns and financial habits</p>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-4">

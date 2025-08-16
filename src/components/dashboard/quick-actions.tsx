@@ -27,7 +27,7 @@ export function QuickActions() {
           </Button>
 
           <Button asChild variant="outline" className="h-auto p-4 justify-start bg-transparent">
-            <Link href="/dashboard/groups/new">
+            <Link href="/dashboard/groups">
               <div className="flex items-center space-x-3">
                 <Users className="h-5 w-5" />
                 <div className="text-left">
@@ -39,7 +39,7 @@ export function QuickActions() {
           </Button>
 
           <Button asChild variant="outline" className="h-auto p-4 justify-start bg-transparent">
-            <Link href="/dashboard/settlements/new">
+            <Link href="/dashboard/settlements">
               <div className="flex items-center space-x-3">
                 <CreditCard className="h-5 w-5" />
                 <div className="text-left">

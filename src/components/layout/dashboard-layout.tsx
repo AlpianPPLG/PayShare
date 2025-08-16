@@ -19,6 +19,7 @@ import { Calculator, Home, Users, Receipt, CreditCard, BarChart3, Settings, LogO
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -51,12 +52,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Mobile sidebar */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="w-64 p-0">
+        <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
           <div className="flex h-full flex-col">
-            <div className="flex h-16 items-center px-6 border-b">
+            <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
               <Calculator className="h-8 w-8 text-primary mr-3" />
               <span className="text-xl font-bold">Expense Splitter</span>
             </div>
@@ -72,7 +73,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       isActive
                         ? "bg-primary text-primary-foreground"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
                   >
                     <item.icon className="mr-3 h-5 w-5" />
@@ -87,8 +88,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
-          <div className="flex h-16 items-center px-6 border-b">
+        <div className="flex flex-col flex-grow bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+          <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
             <Calculator className="h-8 w-8 text-primary mr-3" />
             <span className="text-xl font-bold">Expense Splitter</span>
           </div>
@@ -103,7 +104,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
@@ -118,7 +119,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-card border-b border-border">
           <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
             <div className="flex items-center">
               <Sheet>
@@ -127,10 +128,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-64 p-0">
+                <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
                   {/* Mobile sidebar content */}
                   <div className="flex h-full flex-col">
-                    <div className="flex h-16 items-center px-6 border-b">
+                    <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
                       <Calculator className="h-8 w-8 text-primary mr-3" />
                       <span className="text-xl font-bold">Expense Splitter</span>
                     </div>
@@ -146,7 +147,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                               "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                               isActive
                                 ? "bg-primary text-primary-foreground"
-                                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+                                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                             )}
                           >
                             <item.icon className="mr-3 h-5 w-5" />
@@ -167,6 +168,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   Add Expense
                 </Link>
               </Button>
+
+              <ThemeToggle />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

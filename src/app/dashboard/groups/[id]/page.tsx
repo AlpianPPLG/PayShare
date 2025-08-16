@@ -197,10 +197,10 @@ export default function GroupDetailPage() {
                     <Link href={`/dashboard/expenses/new?group=${group.id}`}>Add Expense</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href={`/dashboard/groups/${group.id}/expenses`}>View Expenses</Link>
+                    <Link href={`/dashboard/expenses?group=${group.id}`}>View Expenses</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href={`/dashboard/groups/${group.id}/balances`}>View Balances</Link>
+                    <Link href={`/dashboard/settlements`}>View Balances</Link>
                   </Button>
                 </CardContent>
               </Card>

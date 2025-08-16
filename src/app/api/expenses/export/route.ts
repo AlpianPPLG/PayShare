@@ -1,55 +1,38 @@
 import { NextRequest, NextResponse } from "next/server"
 import * as XLSX from 'xlsx'
 
-export async function GET(request: NextRequest) {
+import { authenticateRequest } from "@/lib/auth"
+import { ExpenseModel } from "@/lib/models/expense"
+
+export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const format = searchParams.get('format') || 'xlsx' // Default to xlsx
   try {
-    console.log("Export endpoint hit")
-    
-    // Get token from Authorization header
-    const authHeader = request.headers.get("authorization") || request.headers.get("Authorization")
-    if (!authHeader) {
-      console.error("No authorization header")
-      return new NextResponse(
-        JSON.stringify({ success: false, error: "Unauthorized - No token provided" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      )
+    const user = authenticateRequest(request.headers.get("authorization"))
+    if (!user) {
+      return new NextResponse(JSON.stringify({ success: false, error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      })
     }
     
-    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader
-    
-    if (!token) {
-      console.error("No token found in authorization header")
+    const body = await request.json()
+    const { expenseIds } = body
+
+    if (!expenseIds || !Array.isArray(expenseIds) || expenseIds.length === 0) {
       return new NextResponse(
-        JSON.stringify({ success: false, error: "Unauthorized - Invalid token format" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "No expense IDs provided" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
       )
     }
 
-    // Get base URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
-                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
-    
-    console.log("Fetching expenses from:", `${baseUrl}/api/expenses`)
-    
-    // Fetch expenses data
-    const expensesResponse = await fetch(`${baseUrl}/api/expenses`, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store'
-    })
+    const expensesPromises = expenseIds.map(id => ExpenseModel.findById(parseInt(id, 10)))
+    const fetchedExpenses = await Promise.all(expensesPromises)
 
-    if (!expensesResponse.ok) {
-      const errorText = await expensesResponse.text()
-      console.error("Failed to fetch expenses:", expensesResponse.status, errorText)
-      throw new Error(`Failed to fetch expenses: ${expensesResponse.status} ${expensesResponse.statusText}`)
-    }
-
-    const data = await expensesResponse.json()
-    const expenses = data?.data?.expenses || []
+    // Filter out nulls (not found) and check ownership
+    const expenses = fetchedExpenses.filter(expense => 
+      expense && (expense.created_by === user.userId || expense.participants.some(p => p.user_id === user.userId))
+    );
     
     console.log(`Fetched ${expenses.length} expenses for export`)
 
@@ -77,7 +60,7 @@ export async function GET(request: NextRequest) {
       'Amount': expense.total_amount || 0,
       'Currency': expense.currency || 'IDR',
       'Category': expense.category || 'general',
-      'Paid By': expense.paid_by_user?.name || 'Unknown',
+      'Paid By': expense.paid_by_name || 'Unknown',
       'Date': expense.expense_date ? new Date(expense.expense_date).toISOString().split('T')[0] : '',
       'Created At': expense.created_at ? new Date(expense.created_at).toISOString() : '',
       'Updated At': expense.updated_at ? new Date(expense.updated_at).toISOString() : ''

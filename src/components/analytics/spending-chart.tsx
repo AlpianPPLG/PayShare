@@ -58,7 +58,7 @@ export function SpendingChart({
                   if (active && payload && payload.length) {
                     const data = payload[0].payload
                     return (
-                      <div className="bg-white p-3 border rounded shadow">
+                      <div className="bg-popover text-popover-foreground p-3 border border-border rounded shadow">
                         <p className="font-medium">{data[nameKey]}</p>
                         <p className="text-primary">{formatCurrency(data[dataKey])}</p>
                       </div>
@@ -75,13 +75,13 @@ export function SpendingChart({
         return (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
-              <XAxis dataKey={nameKey} />
-              <YAxis tickFormatter={formatCurrency} />
+              <XAxis dataKey={nameKey} stroke="currentColor" tick={{ fill: "currentColor" }} />
+              <YAxis tickFormatter={formatCurrency} stroke="currentColor" tick={{ fill: "currentColor" }} />
               <ChartTooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-white p-3 border rounded shadow">
+                      <div className="bg-popover text-popover-foreground p-3 border border-border rounded shadow">
                         <p className="font-medium">{label}</p>
                         <p className="text-primary">{formatCurrency(payload[0].value as number)}</p>
                       </div>
@@ -99,13 +99,13 @@ export function SpendingChart({
         return (
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data}>
-              <XAxis dataKey={nameKey} />
-              <YAxis tickFormatter={formatCurrency} />
+              <XAxis dataKey={nameKey} stroke="currentColor" tick={{ fill: "currentColor" }} />
+              <YAxis tickFormatter={formatCurrency} stroke="currentColor" tick={{ fill: "currentColor" }} />
               <ChartTooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-white p-3 border rounded shadow">
+                      <div className="bg-popover text-popover-foreground p-3 border border-border rounded shadow">
                         <p className="font-medium">{label}</p>
                         <p className="text-primary">{formatCurrency(payload[0].value as number)}</p>
                       </div>

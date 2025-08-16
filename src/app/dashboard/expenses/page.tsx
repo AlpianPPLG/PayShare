@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { ExpenseFilters } from "@/components/expenses/expense-filters"
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Receipt, Plus, Eye, Calendar, Users, Filter, Download } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
@@ -45,6 +47,7 @@ export default function ExpensesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [exportFormat, setExportFormat] = useState<"xlsx" | "csv">("xlsx")
   const [isExporting, setIsExporting] = useState(false)
+  const [selectedExpenses, setSelectedExpenses] = useState<string[]>([])
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     groupId: "",
@@ -57,6 +60,20 @@ export default function ExpensesPage() {
     sortOrder: "desc",
     status: "",
   })
+
+  // If navigated from a Group page like /dashboard/expenses?group=1, pre-filter by that group
+  const searchParams = useSearchParams()
+  const initialGroupFromQuery = searchParams.get("group") || ""
+
+  useEffect(() => {
+    if (initialGroupFromQuery) {
+      setFilters((prev) => ({ ...prev, groupId: initialGroupFromQuery }))
+      // Immediately apply the filter so the list reflects the target group on first render
+      applyFilters({ groupId: initialGroupFromQuery })
+    }
+    // We only want to run this on mount or when the query changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialGroupFromQuery])
 
   const getUserInitials = (name: string) => {
     return name
@@ -110,6 +127,10 @@ export default function ExpensesPage() {
   }
 
   const handleExport = async () => {
+    if (selectedExpenses.length === 0) {
+      toast.warning("Please select at least one expense to export.")
+      return
+    }
     try {
       const token = localStorage.getItem("auth_token")
       if (!token) {
@@ -120,12 +141,16 @@ export default function ExpensesPage() {
       setIsExporting(true)
 
       const response = await fetch(`/api/expenses/export?format=${exportFormat}`, {
-        method: "GET",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
           Accept:
-            exportFormat === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "text/csv",
+            exportFormat === "xlsx"
+              ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              : "text/csv",
         },
+        body: JSON.stringify({ expenseIds: selectedExpenses }),
       })
 
       console.log("Export response status:", response.status)
@@ -277,8 +302,8 @@ export default function ExpensesPage() {
           bValue = new Date(b.expense_date)
           break
         case "total_amount":
-          aValue = a.total_amount
-          bValue = b.total_amount
+          aValue = Number(a.total_amount)
+          bValue = Number(b.total_amount)
           break
         case "title":
           aValue = a.title.toLowerCase()
@@ -366,8 +391,8 @@ export default function ExpensesPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Expenses</h1>
-              <p className="text-gray-600">Track and manage your shared expenses</p>
+              <h1 className="text-3xl font-bold text-foreground">Expenses</h1>
+              <p className="text-muted-foreground">Track and manage your shared expenses</p>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
@@ -387,7 +412,7 @@ export default function ExpensesPage() {
                 <Button
                   variant="outline"
                   onClick={handleExport}
-                  disabled={filteredExpenses.length === 0 || isExporting}
+                  disabled={selectedExpenses.length === 0 || isExporting}
                 >
                   {isExporting ? (
                     <>
@@ -452,7 +477,9 @@ export default function ExpensesPage() {
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-2xl font-bold">
-                      {formatCurrency(filteredExpenses.reduce((sum, e) => sum + e.total_amount, 0))}
+                      {formatCurrency(
+                        filteredExpenses.reduce((sum, e) => sum + Number(e.total_amount || 0), 0),
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">Total Amount</p>
                   </CardContent>
@@ -466,6 +493,35 @@ export default function ExpensesPage() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Select All / Count */}
+              {filteredExpenses.length > 0 && (
+                <div className="flex items-center justify-between mb-4 px-1">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="select-all"
+                      checked={
+                        selectedExpenses.length === filteredExpenses.length && filteredExpenses.length > 0
+                      }
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedExpenses(filteredExpenses.map((e) => e.id.toString()))
+                        } else {
+                          setSelectedExpenses([])
+                        }
+                      }}
+                    />
+                    <label htmlFor="select-all" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Select All
+                    </label>
+                  </div>
+                  {selectedExpenses.length > 0 && (
+                    <div className="text-sm text-muted-foreground">
+                      {selectedExpenses.length} of {filteredExpenses.length} selected
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Expenses List */}
               {loading ? (
@@ -500,8 +556,25 @@ export default function ExpensesPage() {
               ) : (
                 <div className="space-y-4">
                   {filteredExpenses.map((expense) => (
-                    <Card key={expense.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-6">
+                    <Card
+                    key={expense.id}
+                    className={`hover:shadow-md transition-shadow ${
+                      selectedExpenses.includes(expense.id.toString()) ? "border-primary" : ""
+                    }`}>
+                    <div className="flex items-center p-6">
+                      <Checkbox
+                        id={`select-${expense.id}`}
+                        checked={selectedExpenses.includes(expense.id.toString())}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedExpenses([...selectedExpenses, expense.id.toString()])
+                          } else {
+                            setSelectedExpenses(selectedExpenses.filter((id) => id !== expense.id.toString()))
+                          }
+                        }}
+                        className="mr-4"
+                      />
+                      <CardContent className="p-0 flex-grow">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start space-x-4 flex-1">
                             <div className="text-2xl">{getCategoryIcon(expense.category)}</div>
@@ -570,6 +643,7 @@ export default function ExpensesPage() {
                           </div>
                         </div>
                       </CardContent>
+                    </div>
                     </Card>
                   ))}
                 </div>
