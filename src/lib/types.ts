@@ -1,3 +1,5 @@
+import { ReactNode } from "react"
+
 // User types
 export interface User {
     id: number
@@ -76,6 +78,8 @@ export interface User {
   
   // Expense participant types
   export interface ExpenseParticipant {
+    user_name: string
+    user_email: string
     id: number
     expense_id: number
     user_id: number

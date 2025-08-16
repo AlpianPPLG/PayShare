@@ -80,8 +80,20 @@ export class ExpenseModel {
   }
 
   // Get user's expenses
-  static async getUserExpenses(userId: number, limit = 50, offset = 0): Promise<ExpenseWithDetails[]> {
-    const query = `
+  static async getUserExpenses(
+    userId: number, 
+    limit = 50, 
+    offset = 0,
+    filters?: {
+      search?: string
+      category?: string
+      startDate?: Date
+      endDate?: Date
+      sortBy?: string
+      sortOrder?: 'asc' | 'desc'
+    }
+  ): Promise<ExpenseWithDetails[]> {
+    let query = `
       SELECT DISTINCT e.*, 
              u.name as paid_by_name, u.email as paid_by_email,
              g.name as group_name
@@ -90,11 +102,43 @@ export class ExpenseModel {
       LEFT JOIN groups g ON e.group_id = g.id
       LEFT JOIN expense_participants ep ON e.id = ep.expense_id
       WHERE e.paid_by = ? OR ep.user_id = ?
-      ORDER BY e.expense_date DESC, e.created_at DESC
-      LIMIT ? OFFSET ?
     `
+    const params: any[] = [userId, userId]
 
-    const expenses = await executeQuery<ExpenseWithDetails>(query, [userId, userId, limit, offset])
+    // Apply filters
+    if (filters?.search) {
+      query += ` AND (e.title LIKE ? OR e.description LIKE ? OR u.name LIKE ?)`
+      const searchTerm = `%${filters.search}%`
+      params.push(searchTerm, searchTerm, searchTerm)
+    }
+
+    if (filters?.category) {
+      query += ` AND e.category = ?`
+      params.push(filters.category)
+    }
+
+    if (filters?.startDate) {
+      query += ` AND e.expense_date >= ?`
+      params.push(filters.startDate.toISOString().split('T')[0])
+    }
+
+    if (filters?.endDate) {
+      query += ` AND e.expense_date <= ?`
+      params.push(filters.endDate.toISOString().split('T')[0])
+    }
+
+    // Apply sorting
+    const validSortColumns = ['expense_date', 'total_amount', 'title', 'created_at']
+    const sortBy = filters && filters.sortBy && validSortColumns.includes(filters.sortBy) 
+      ? filters.sortBy 
+      : 'expense_date'
+    const sortOrder = filters && filters.sortOrder === 'asc' ? 'ASC' : 'DESC'
+    
+    query += ` ORDER BY e.${sortBy} ${sortOrder}, e.created_at DESC`
+    query += ` LIMIT ? OFFSET ?`
+    params.push(limit, offset)
+
+    const expenses = await executeQuery<ExpenseWithDetails>(query, params)
 
     // Get participants for each expense
     for (const expense of expenses) {

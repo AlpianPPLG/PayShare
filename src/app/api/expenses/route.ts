@@ -21,13 +21,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const limit = Number.parseInt(searchParams.get("limit") || "50")
     const offset = Number.parseInt(searchParams.get("offset") || "0")
-    const groupId = searchParams.get("group_id")
+    const groupId = searchParams.get("group_id") || undefined
+    const search = searchParams.get("search") || undefined
+    const category = searchParams.get("category") || undefined
+    const startDate = searchParams.get("start_date") || undefined
+    const endDate = searchParams.get("end_date") || undefined
+    const sortBy = searchParams.get("sort_by") || "expense_date"
+    const sortOrder = searchParams.get("sort_order") || "desc"
 
     let expenses
     if (groupId) {
       expenses = await ExpenseModel.getGroupExpenses(Number.parseInt(groupId), limit, offset)
     } else {
-      expenses = await ExpenseModel.getUserExpenses(payload.userId, limit, offset)
+      expenses = await ExpenseModel.getUserExpenses(
+        payload.userId, 
+        limit, 
+        offset, 
+        {
+          search: search || undefined,
+          category: category || undefined,
+          startDate: startDate ? new Date(startDate) : undefined,
+          endDate: endDate ? new Date(endDate) : undefined,
+          sortBy: sortBy || 'expense_date',
+          sortOrder: (sortOrder as 'asc' | 'desc') || 'desc'
+        }
+      )
     }
 
     return NextResponse.json<ApiResponse>({
