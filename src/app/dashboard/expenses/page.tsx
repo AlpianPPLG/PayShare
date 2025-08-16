@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { ExpenseFilters } from "@/components/expenses/expense-filters"
@@ -10,26 +10,51 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Receipt, Plus, Eye, Calendar, Users, Filter } from "lucide-react"
+import { Receipt, Plus, Eye, Calendar, Users, Filter, Download } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import type { ExpenseWithDetails, Category } from "@/lib/types"
+import { toast } from "sonner"
+import { Select } from "react-day-picker"
+
+interface FilterState {
+  search: string
+  groupId: string
+  category: string
+  startDate: string
+  endDate: string
+  minAmount: string
+  maxAmount: string
+  sortBy: string
+  sortOrder: "asc" | "desc"
+  status: string
+}
+
+interface Participant {
+  id: string
+  is_settled: boolean
+  // Add other participant fields as needed
+}
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
   const [filteredExpenses, setFilteredExpenses] = useState<ExpenseWithDetails[]>([])
-  const [groups, setGroups] = useState([])
+  const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
-  const [filters, setFilters] = useState({
+  const [exportFormat, setExportFormat] = useState<"xlsx" | "csv">("xlsx")
+  const [isExporting, setIsExporting] = useState(false)
+  const [filters, setFilters] = useState<FilterState>({
     search: "",
+    groupId: "",
     category: "",
     startDate: "",
     endDate: "",
+    minAmount: "",
+    maxAmount: "",
     sortBy: "expense_date",
     sortOrder: "desc",
-    groupId: "",
     status: "",
   })
 
@@ -84,6 +109,70 @@ export default function ExpensesPage() {
     }
   }
 
+  const handleExport = async () => {
+    try {
+      const token = localStorage.getItem("auth_token")
+      if (!token) {
+        throw new Error("No authentication token found")
+      }
+
+      console.log(`Starting ${exportFormat.toUpperCase()} export...`)
+      setIsExporting(true)
+
+      const response = await fetch(`/api/expenses/export?format=${exportFormat}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept:
+            exportFormat === "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "text/csv",
+        },
+      })
+
+      console.log("Export response status:", response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("Export API error:", errorText)
+        throw new Error(`Failed to export: ${response.status} ${response.statusText}`)
+      }
+
+      // Get the filename from the Content-Disposition header or use a default one
+      const contentDisposition = response.headers.get("Content-Disposition")
+      const extension = exportFormat === "xlsx" ? "xlsx" : "csv"
+      let filename = `expenses_${new Date().toISOString().split("T")[0]}.${extension}`
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/)
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1]
+        }
+      }
+
+      const blob = await response.blob()
+
+      // Create a temporary URL and trigger download
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.style.display = "none"
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+
+      // Clean up
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast.success(`Exported to ${filename}`)
+      console.log(`Export to ${exportFormat.toUpperCase()} completed successfully`)
+    } catch (error) {
+      console.error("Export failed:", error)
+      toast.error(`Export failed: ${error instanceof Error ? error.message : "Unknown error"}`)
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
   const fetchGroups = async () => {
     try {
       const token = localStorage.getItem("auth_token")
@@ -114,60 +203,57 @@ export default function ExpensesPage() {
     }
   }
 
-  const applyFilters = (newFilters: Partial<typeof filters>) => {
-    const mergedFilters = { ...filters, ...newFilters };
-    setFilters(mergedFilters);
-    
+  const applyFilters = (newFilters: Partial<FilterState>) => {
+    const mergedFilters = { ...filters, ...newFilters }
+    setFilters(mergedFilters)
+
     let filtered = [...expenses]
 
     // Search filter
     if (mergedFilters.search) {
       const searchLower = mergedFilters.search.toLowerCase()
-      filtered = filtered.filter(expense => 
-        expense.title.toLowerCase().includes(searchLower) ||
-        expense.description?.toLowerCase().includes(searchLower) ||
-        expense.paid_by_name.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(
+        (expense) =>
+          expense.title.toLowerCase().includes(searchLower) ||
+          (expense.description?.toLowerCase() || "").includes(searchLower) ||
+          (expense.paid_by_name || "").toLowerCase().includes(searchLower),
       )
     }
 
     // Category filter
-    if (mergedFilters.category && mergedFilters.category !== 'all') {
-      filtered = filtered.filter(expense => expense.category === mergedFilters.category)
+    if (mergedFilters.category && mergedFilters.category !== "all") {
+      filtered = filtered.filter((expense) => expense.category === mergedFilters.category)
     }
 
     // Date range filter with proper null checks
     if (mergedFilters.startDate) {
-      const startDate = new Date(mergedFilters.startDate);
+      const startDate = new Date(mergedFilters.startDate)
       if (!isNaN(startDate.getTime())) {
-        filtered = filtered.filter(expense => 
-          new Date(expense.expense_date) >= startDate
-        )
+        filtered = filtered.filter((expense) => new Date(expense.expense_date) >= startDate)
       }
     }
     if (mergedFilters.endDate) {
-      const endDate = new Date(mergedFilters.endDate);
+      const endDate = new Date(mergedFilters.endDate)
       if (!isNaN(endDate.getTime())) {
-        filtered = filtered.filter(expense => 
-          new Date(expense.expense_date) <= endDate
-        )
+        filtered = filtered.filter((expense) => new Date(expense.expense_date) <= endDate)
       }
     }
 
     // Group filter
     if (mergedFilters.groupId) {
       if (mergedFilters.groupId === "no-group") {
-        filtered = filtered.filter(expense => !expense.group_id)
+        filtered = filtered.filter((expense) => !expense.group_id)
       } else {
-        filtered = filtered.filter(expense => expense.group_id?.toString() === mergedFilters.groupId)
+        filtered = filtered.filter((expense) => expense.group_id?.toString() === mergedFilters.groupId)
       }
     }
 
     // Status filter
     if (mergedFilters.status) {
-      filtered = filtered.filter(expense => {
-        const settledCount = expense.participants.filter(p => p.is_settled).length
+      filtered = filtered.filter((expense) => {
+        const settledCount = expense.participants.filter((p) => p.is_settled).length
         const totalCount = expense.participants.length
-        
+
         switch (mergedFilters.status) {
           case "settled":
             return settledCount === totalCount
@@ -184,7 +270,7 @@ export default function ExpensesPage() {
     // Sort
     filtered.sort((a, b) => {
       let aValue: any, bValue: any
-      
+
       switch (mergedFilters.sortBy) {
         case "expense_date":
           aValue = new Date(a.expense_date)
@@ -218,13 +304,59 @@ export default function ExpensesPage() {
   }
 
   useEffect(() => {
-    fetchExpenses()
-    fetchGroups()
-    fetchCategories()
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("auth_token")
+
+        // Fetch expenses
+        const expensesResponse = await fetch("/api/expenses", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const expensesData = await expensesResponse.json()
+        if (expensesData.success) {
+          setExpenses(expensesData.data.expenses)
+          setFilteredExpenses(expensesData.data.expenses)
+        }
+
+        // Fetch groups
+        const groupsResponse = await fetch("/api/groups", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const groupsData = await groupsResponse.json()
+        if (groupsData.success) {
+          setGroups(groupsData.data.groups)
+        }
+
+        // Fetch categories
+        const categoriesResponse = await fetch("/api/categories", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const categoriesData = await categoriesResponse.json()
+        if (categoriesData.success) {
+          setCategories(categoriesData.data.categories)
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error)
+        toast.error("Failed to load data")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
+  const isInitialMount = useRef(true)
+
   useEffect(() => {
-    applyFilters(filters)
+    // Skip the initial mount and only run when expenses change
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    
+    // Only apply filters when expenses change, not when filters change
+    applyFilters({})
   }, [expenses])
 
   return (
@@ -238,13 +370,57 @@ export default function ExpensesPage() {
               <p className="text-gray-600">Track and manage your shared expenses</p>
             </div>
             <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-              >
+              <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
               </Button>
+              <div className="flex items-center space-x-2">
+                <Select
+                  value={exportFormat}
+                  onChange={(e) => setExportFormat(e.target.value as "xlsx" | "csv")}
+                  className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={isExporting}
+                >
+                  <option value="xlsx">XLSX</option>
+                  <option value="csv">CSV</option>
+                </Select>
+                <Button
+                  variant="outline"
+                  onClick={handleExport}
+                  disabled={filteredExpenses.length === 0 || isExporting}
+                >
+                  {isExporting ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </>
+                  )}
+                </Button>
+              </div>
               <QuickSplitDialog onExpenseCreated={fetchExpenses} />
               <Button asChild>
                 <Link href="/dashboard/expenses/new">
@@ -259,11 +435,7 @@ export default function ExpensesPage() {
             {/* Filters Sidebar */}
             {showFilters && (
               <div className="lg:col-span-1">
-                <ExpenseFilters
-                  onFiltersChange={applyFilters}
-                  groups={groups}
-                  categories={categories}
-                />
+                <ExpenseFilters onFiltersChange={applyFilters} groups={groups} categories={categories} />
               </div>
             )}
 
@@ -310,10 +482,9 @@ export default function ExpensesPage() {
                       {expenses.length === 0 ? "No expenses yet" : "No expenses match your filters"}
                     </h3>
                     <p className="text-muted-foreground mb-4">
-                      {expenses.length === 0 
-                        ? "Start by creating your first shared expense." 
-                        : "Try adjusting your filters or create a new expense."
-                      }
+                      {expenses.length === 0
+                        ? "Start by creating your first shared expense."
+                        : "Try adjusting your filters or create a new expense."}
                     </p>
                     <div className="flex justify-center space-x-2">
                       <QuickSplitDialog onExpenseCreated={fetchExpenses} />
@@ -345,9 +516,9 @@ export default function ExpensesPage() {
                                 )}
                                 {/* Settlement Status Badge */}
                                 {(() => {
-                                  const settledCount = expense.participants.filter(p => p.is_settled).length
+                                  const settledCount = expense.participants.filter((p) => p.is_settled).length
                                   const totalCount = expense.participants.length
-                                  
+
                                   if (settledCount === totalCount) {
                                     return <Badge variant="default">Settled</Badge>
                                   } else if (settledCount > 0) {
@@ -358,7 +529,9 @@ export default function ExpensesPage() {
                                 })()}
                               </div>
 
-                              {expense.description && <p className="text-muted-foreground mb-3">{expense.description}</p>}
+                              {expense.description && (
+                                <p className="text-muted-foreground mb-3">{expense.description}</p>
+                              )}
 
                               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                                 <div className="flex items-center">
@@ -375,7 +548,8 @@ export default function ExpensesPage() {
                                   {formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })}
                                 </div>
                                 <div>
-                                  {expense.participants.length} participant{expense.participants.length !== 1 ? "s" : ""}
+                                  {expense.participants.length} participant
+                                  {expense.participants.length !== 1 ? "s" : ""}
                                 </div>
                               </div>
                             </div>

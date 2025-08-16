@@ -268,9 +268,19 @@ export default function ExpenseDetailPage() {
                           {participant.percentage && (
                             <p className="text-sm text-muted-foreground">{participant.percentage}%</p>
                           )}
-                          <Badge variant={participant.is_settled ? "default" : "secondary"} className="mt-1">
-                            {participant.is_settled ? "Settled" : "Pending"}
-                          </Badge>
+                          <div className="mt-1">
+                            <Badge variant={participant.is_settled ? "default" : "secondary"} className="mb-1">
+                              {participant.is_settled ? "Settled" : "Pending"}
+                            </Badge>
+                            {!participant.is_settled && participant.amount_owed > 0 && (
+                              <Button variant="outline" size="sm" className="ml-2" asChild>
+                                <Link href={`/dashboard/settlements/new?expense=${expense.id}&participant=${participant.user_id}`}>
+                                  <CreditCard className="h-3 w-3 mr-1" />
+                                  Record
+                                </Link>
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -16,46 +16,53 @@ interface ExpenseFiltersProps {
     startDate?: string
     endDate?: string
     sortBy?: string
-    sortOrder?: string
+    sortOrder?: 'asc' | 'desc'
     groupId?: string
     status?: string
   }) => void
-  groups: Array<{ id: number; name: string }>
+  groups: Array<{ id: string; name: string }>
   categories: Array<{ id: number; name: string; icon?: string }>
 }
 
 export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseFiltersProps) {
   const [search, setSearch] = useState("")
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState("all")
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [sortBy, setSortBy] = useState("expense_date")
-  const [sortOrder, setSortOrder] = useState("desc")
-  const [groupId, setGroupId] = useState("")
-  const [status, setStatus] = useState("")
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc")
+  const [groupId, setGroupId] = useState("all")
+  const [status, setStatus] = useState("all")
 
-  const activeFiltersCount = [search, category, startDate, endDate, groupId, status].filter(Boolean).length
+  const activeFiltersCount = [
+    search,
+    category && category !== 'all',
+    startDate,
+    endDate,
+    groupId && groupId !== 'all',
+    status && status !== 'all'
+  ].filter(Boolean).length
 
   const handleApplyFilters = () => {
     onFiltersChange({
       search: search || undefined,
-      category: category || undefined,
+      category: category === 'all' ? undefined : category,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       sortBy,
-      sortOrder,
-      groupId: groupId || undefined,
-      status: status || undefined,
+      sortOrder: sortOrder as 'asc' | 'desc',
+      groupId: groupId === 'all' ? undefined : groupId,
+      status: status === 'all' ? undefined : status,
     })
   }
 
   const handleClearFilters = () => {
     setSearch("")
-    setCategory("")
+    setCategory("all")
     setStartDate("")
     setEndDate("")
-    setGroupId("")
-    setStatus("")
+    setGroupId("all")
+    setStatus("all")
     setSortBy("expense_date")
     setSortOrder("desc")
     
@@ -79,7 +86,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
       startDate: start.toISOString().split("T")[0],
       endDate: end.toISOString().split("T")[0],
       sortBy,
-      sortOrder,
+      sortOrder: sortOrder as 'asc' | 'desc',
       groupId: groupId || undefined,
       status: status || undefined,
     })
@@ -174,7 +181,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="all">All categories</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.name.toLowerCase().replace(/\s+/g, "_")}>
                   {cat.icon} {cat.name}
@@ -237,7 +244,10 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
           </div>
           <div>
             <Label htmlFor="sort-order">Order</Label>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            <Select 
+              value={sortOrder} 
+              onValueChange={(value: 'asc' | 'desc') => setSortOrder(value)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

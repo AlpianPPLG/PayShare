@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
 import { Button } from "@/components/ui/button"
+import { Loader2 as Spinner } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,23 +19,50 @@ import { Separator } from "@/components/ui/separator"
 import { Loader2, Minus, Users } from "lucide-react"
 import type { GroupWithMembers, Category, AuthUser } from "@/lib/types"
 
-export function CreateExpenseForm() {
+interface CreateExpenseFormProps {
+  isEditMode?: boolean
+  initialData?: {
+    id?: number
+    title: string
+    description: string
+    totalAmount: string
+    category: string
+    groupId: string
+    paidBy: string
+    splitMethod: 'equal' | 'exact' | 'percentage'
+    expenseDate: string
+    participants: Array<{
+      user_id: number
+      user_name: string
+      amount?: number
+      percentage?: number
+    }>
+  }
+  onSuccess?: () => void
+}
+
+export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }: CreateExpenseFormProps) {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselectedGroupId = searchParams.get("group")
+  const duplicateExpenseId = searchParams.get("duplicate")
 
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [totalAmount, setTotalAmount] = useState("")
-  const [category, setCategory] = useState("general")
-  const [groupId, setGroupId] = useState(preselectedGroupId || "")
-  const [paidBy, setPaidBy] = useState(user?.id.toString() || "")
-  const [splitMethod, setSplitMethod] = useState<"equal" | "exact" | "percentage">("equal")
-  const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split("T")[0])
+  const [title, setTitle] = useState(initialData?.title || "")
+  const [description, setDescription] = useState(initialData?.description || "")
+  const [totalAmount, setTotalAmount] = useState(initialData?.totalAmount || "")
+  const [category, setCategory] = useState(initialData?.category || "general")
+  const [groupId, setGroupId] = useState(initialData?.groupId || preselectedGroupId || "")
+  const [paidBy, setPaidBy] = useState(initialData?.paidBy || user?.id.toString() || "")
+  const [splitMethod, setSplitMethod] = useState<"equal" | "exact" | "percentage">(
+    initialData?.splitMethod || "equal"
+  )
+  const [expenseDate, setExpenseDate] = useState(
+    initialData?.expenseDate || new Date().toISOString().split("T")[0]
+  )
   const [participants, setParticipants] = useState<
     { user_id: number; user_name: string; amount?: number; percentage?: number }[]
-  >([])
+  >(initialData?.participants || [])
 
   const [groups, setGroups] = useState<GroupWithMembers[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -59,7 +87,19 @@ export function CreateExpenseForm() {
   }
 
   useEffect(() => {
-    fetchInitialData()
+    const fetchData = async () => {
+      await fetchInitialData()
+      
+      // If duplicating an expense, fetch its data
+      if (duplicateExpenseId) {
+        await fetchExpenseToDuplicate(duplicateExpenseId)
+      } else if (isEditMode && initialData) {
+        // For edit mode, ensure we have the latest data for groups and categories
+        await fetchInitialData()
+      }
+    }
+    
+    fetchData()
   }, [])
 
   useEffect(() => {
@@ -186,8 +226,14 @@ export function CreateExpenseForm() {
 
     try {
       const token = localStorage.getItem("auth_token")
-      const response = await fetch("/api/expenses", {
-        method: "POST",
+      const url = isEditMode && initialData?.id 
+        ? `/api/expenses/${initialData.id}` 
+        : "/api/expenses"
+      
+      const method = isEditMode ? "PUT" : "POST"
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -213,12 +259,66 @@ export function CreateExpenseForm() {
       const data = await response.json()
 
       if (data.success) {
-        router.push("/dashboard/expenses")
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          router.push("/dashboard/expenses")
+        }
       } else {
-        setError(data.error || "Failed to create expense")
+        setError(data.error || `Failed to ${isEditMode ? 'update' : 'create'} expense`)
       }
     } catch (error) {
       setError("Network error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchExpenseToDuplicate = async (expenseId: string) => {
+    try {
+      setLoading(true)
+      const token = localStorage.getItem("auth_token")
+      const response = await fetch(`/api/expenses/${expenseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        const exp = data.data.expense
+        
+        // Set basic expense info
+        setTitle(`${exp.title} (Copy)`)
+        setDescription(exp.description)
+        setTotalAmount(exp.total_amount.toString())
+        setCategory(exp.category)
+        setExpenseDate(new Date().toISOString().split("T")[0]) // Use current date for the duplicate
+        
+        // Set group if exists
+        if (exp.group_id) {
+          setGroupId(exp.group_id.toString())
+        }
+        
+        // Set paid by
+        setPaidBy(exp.paid_by.toString())
+        
+        // Set participants with their amounts/percentages
+        const participantsData = exp.participants.map((p: any) => ({
+          user_id: p.user_id,
+          user_name: p.user_name,
+          amount: p.amount_owed,
+          percentage: p.percentage
+        }))
+        
+        setParticipants(participantsData)
+        
+        // Set split method
+        setSplitMethod(exp.split_method)
+        
+      } else {
+        console.error("Failed to fetch expense to duplicate:", data.error)
+      }
+    } catch (error) {
+      console.error("Error duplicating expense:", error)
     } finally {
       setLoading(false)
     }
@@ -230,8 +330,12 @@ export function CreateExpenseForm() {
     <div className="max-w-4xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Expense</CardTitle>
-          <CardDescription>Record a shared expense and split it among participants</CardDescription>
+          <CardTitle>{isEditMode ? 'Edit Expense' : duplicateExpenseId ? 'Duplicate Expense' : 'Create New Expense'}</CardTitle>
+          <CardDescription>
+            {duplicateExpenseId 
+              ? 'Edit the details below to create a copy of this expense'
+              : 'Record a shared expense and split it among participants'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -336,11 +440,17 @@ export function CreateExpenseForm() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableUsers.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
-                      {user.name} {user.id.toString() === user?.id.toString() && "(You)"}
+                  {availableUsers.length > 0 ? (
+                    availableUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {user.name} {user.id.toString() === user?.id.toString() && "(You)"}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value={paidBy}>
+                      {participants.find(p => p.user_id.toString() === paidBy)?.user_name || `User ${paidBy}`}
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -503,10 +613,10 @@ export function CreateExpenseForm() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    {isEditMode ? 'Updating...' : duplicateExpenseId ? 'Duplicating...' : 'Creating...'}
                   </>
                 ) : (
-                  "Create Expense"
+                  isEditMode ? 'Update Expense' : duplicateExpenseId ? 'Duplicate Expense' : 'Create Expense'
                 )}
               </Button>
             </div>

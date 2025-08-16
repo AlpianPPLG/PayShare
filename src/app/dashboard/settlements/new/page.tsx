@@ -1,0 +1,248 @@
+"use client"
+
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { ProtectedRoute } from "@/components/auth/protected-route"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2, ArrowLeft, CreditCard } from "lucide-react"
+import Link from "next/link"
+
+export default function NewSettlementPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const expenseId = searchParams.get('expense')
+  
+  const [loading, setLoading] = useState(!!expenseId)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
+  const [expense, setExpense] = useState<any>(null)
+  const [formData, setFormData] = useState({
+    amount: "",
+    notes: "",
+    settlement_date: new Date().toISOString().split("T")[0],
+  })
+
+  useEffect(() => {
+    if (expenseId) {
+      fetchExpenseDetails()
+    }
+  }, [expenseId])
+
+  const fetchExpenseDetails = async () => {
+    try {
+      const token = localStorage.getItem("auth_token")
+      const response = await fetch(`/api/expenses/${expenseId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        setExpense(data.data.expense)
+        // Auto-fill the amount with the first pending participant's amount
+        const pendingParticipant = data.data.expense.participants.find(
+          (p: any) => !p.is_settled
+        )
+        if (pendingParticipant) {
+          setFormData(prev => ({
+            ...prev,
+            amount: pendingParticipant.amount_owed.toString(),
+          }))
+        }
+      } else {
+        setError(data.error || "Failed to load expense details")
+      }
+    } catch (error) {
+      setError("Network error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    setError("")
+
+    try {
+      const token = localStorage.getItem("auth_token")
+      const response = await fetch("/api/settlements", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          expense_id: expenseId,
+          from_user_id: expense?.participants.find((p: any) => p.amount_owed > 0)?.user_id,
+          to_user_id: expense?.paid_by,
+          amount: Number.parseFloat(formData.amount),
+          currency: "IDR",
+          notes: formData.notes,
+          settlement_date: formData.settlement_date,
+        }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        router.push(`/dashboard/expenses/${expenseId}`)
+      } else {
+        setError(data.error || "Failed to record settlement")
+      }
+    } catch (error) {
+      setError("Network error")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        </DashboardLayout>
+      </ProtectedRoute>
+    )
+  }
+
+  if (!expense && expenseId) {
+    return (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <div className="space-y-4">
+            <Button variant="ghost" asChild>
+              <Link href="/dashboard/expenses">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Expenses
+              </Link>
+            </Button>
+            <Alert variant="destructive">
+              <AlertDescription>
+                {error || "Expense not found or you don't have permission to view it"}
+              </AlertDescription>
+            </Alert>
+          </div>
+        </DashboardLayout>
+      </ProtectedRoute>
+    )
+  }
+
+  return (
+    <ProtectedRoute>
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <Button variant="ghost" asChild>
+              <Link href={expenseId ? `/dashboard/expenses/${expenseId}` : "/dashboard/expenses"}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to {expense ? "Expense" : "Expenses"}
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold mt-4">Record Settlement</h1>
+            <p className="text-muted-foreground">
+              Record a payment for {expense?.title || 'this expense'}
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CreditCard className="h-5 w-5 mr-2" />
+                Settlement Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div>
+                  <Label htmlFor="amount">Amount (IDR)</Label>
+                  <Input
+                    id="amount"
+                    name="amount"
+                    type="number"
+                    step="0.01"
+                    placeholder="0"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="settlement_date">Settlement Date</Label>
+                  <Input
+                    id="settlement_date"
+                    name="settlement_date"
+                    type="date"
+                    value={formData.settlement_date}
+                    onChange={handleInputChange}
+                    required
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Textarea
+                    id="notes"
+                    name="notes"
+                    placeholder="Add any notes about this settlement..."
+                    value={formData.notes}
+                    onChange={handleInputChange}
+                    disabled={submitting}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-4 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.back()}
+                    disabled={submitting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Recording...
+                      </>
+                    ) : (
+                      'Record Settlement'
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    </ProtectedRoute>
+  )
+}
