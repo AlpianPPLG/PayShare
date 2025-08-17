@@ -18,13 +18,14 @@ import {
   ArrowLeft, 
   Edit, 
   Trash2, 
-  Download,
   Share2,
+  Check,
   CreditCard
 } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import type { ExpenseWithDetails } from "@/lib/types"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function ExpenseDetailPage() {
   const params = useParams()
@@ -33,6 +34,8 @@ export default function ExpenseDetailPage() {
   const [expense, setExpense] = useState<ExpenseWithDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [copied, setCopied] = useState(false)
+  const { t } = useI18n()
 
   const getUserInitials = (name: string) => {
     return name
@@ -109,14 +112,68 @@ export default function ExpenseDetailPage() {
     }
   }
 
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log("Export expense:", expense)
-  }
+  
 
-  const handleShare = () => {
-    // TODO: Implement share functionality
-    console.log("Share expense:", expense)
+  const handleShare = async () => {
+    if (!expense) return
+
+    // Build receipt-like text
+    const lines: string[] = []
+    const currency = expense.currency || "IDR"
+    const dateStr = new Date(expense.expense_date).toLocaleString()
+
+    const formatMoney = (amount: number) =>
+      new Intl.NumberFormat("id-ID", { style: "currency", currency, minimumFractionDigits: 0 }).format(amount)
+
+    const participantsText = expense.participants
+      .map((p) => `- ${p.user_name} (${p.user_email}): ${formatMoney(Number(p.amount_owed ?? 0))}`)
+      .join("\n")
+
+    const total = expense.participants.reduce((sum, p) => sum + (Number.isFinite(Number(p.amount_owed)) ? Number(p.amount_owed) : 0), 0)
+
+    lines.push(
+      "==== Expense Splitter Receipt ====",
+      `Title       : ${expense.title}`,
+      `Description : ${expense.description || "-"}`,
+      `Category    : ${expense.category.replace(/_/g, " ").replace(/&/g, "&")}`,
+      `Date        : ${dateStr}`,
+      `Paid by     : ${expense.paid_by_name}`,
+      `Split Method: ${expense.split_method}`,
+      `Currency    : ${currency}`
+    )
+
+    if (expense.group_name) {
+      lines.push(`Group       : ${expense.group_name}`)
+    }
+
+    lines.push(
+      "",
+      "Participants:",
+      participantsText,
+      "",
+      `Total Split : ${formatMoney(total)}`,
+      "=================================="
+    )
+
+    const text = lines.join("\n")
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (e) {
+      // Fallback if clipboard API fails
+      const textarea = document.createElement("textarea")
+      textarea.value = text
+      document.body.appendChild(textarea)
+      textarea.select()
+      try {
+        document.execCommand("copy")
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } finally {
+        document.body.removeChild(textarea)
+      }
+    }
   }
 
   useEffect(() => {
@@ -163,6 +220,12 @@ export default function ExpenseDetailPage() {
     )
   }
 
+  // Safely compute total split and coerce any non-numeric values
+  const totalSplit = expense.participants.reduce((sum, p) => {
+    const val = typeof p.amount_owed === "number" ? p.amount_owed : Number(p.amount_owed ?? 0)
+    return sum + (Number.isFinite(val) ? val : 0)
+  }, 0)
+
   return (
     <ProtectedRoute>
       <DashboardLayout>
@@ -177,21 +240,26 @@ export default function ExpenseDetailPage() {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+                <h1 className="text-3xl font-bold text-foreground flex items-center">
                   <span className="text-2xl mr-3">{getCategoryIcon(expense.category)}</span>
                   {expense.title}
                 </h1>
-                <p className="text-gray-600">{expense.description}</p>
+                <p className="text-muted-foreground">{expense.description}</p>
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
+              <Button variant="outline" size="sm" onClick={handleShare} aria-live="polite">
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    {t("common.copied")}
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4 mr-2" />
+                    {t("common.share")}
+                  </>
+                )}
               </Button>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/expenses/${expense.id}/edit`}>
@@ -264,7 +332,7 @@ export default function ExpenseDetailPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-lg">{formatCurrency(participant.amount_owed)}</p>
+                          <p className="font-bold text-lg">{formatCurrency(Number(participant.amount_owed ?? 0))}</p>
                           {participant.percentage && (
                             <p className="text-sm text-muted-foreground">{participant.percentage}%</p>
                           )}
@@ -290,7 +358,7 @@ export default function ExpenseDetailPage() {
                   
                   <div className="flex justify-between items-center font-medium">
                     <span>Total Split</span>
-                    <span>{formatCurrency(expense.participants.reduce((sum, p) => sum + p.amount_owed, 0))}</span>
+                    <span>{formatCurrency(totalSplit)}</span>
                   </div>
                 </CardContent>
               </Card>

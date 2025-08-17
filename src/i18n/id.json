@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "Expense Splitter"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "groups": "Grup",
+    "expenses": "Pengeluaran",
+    "settlements": "Penyelesaian",
+    "analytics": "Analitik",
+    "faq": "FAQ"
+  },
+  "actions": {
+    "addExpense": "Tambah Pengeluaran",
+    "profileSettings": "Pengaturan Profil",
+    "logout": "Keluar"
+  },
+  "common": {
+    "share": "Bagikan",
+    "copied": "Tersalin!"
+  },
+  "dashboard": {
+    "welcome": "Selamat datang kembali, {name}!",
+    "overviewSub": "Berikut ringkasan pengeluaran bersama dan saldo Anda."
+  },
+  "expenses": {
+    "back": "Kembali ke Pengeluaran",
+    "totalSplit": "Total Dibagi"
+  }
+  ,
+  "faq": {
+    "title": "Pertanyaan yang Sering Diajukan",
+    "subtitle": "Jawaban untuk pertanyaan umum tentang Expense Splitter.",
+    "items": [
+      {
+        "q": "Apa itu Expense Splitter?",
+        "a": "Expense Splitter membantu Anda berbagi biaya dengan teman, keluarga, atau tim. Buat grup, tambah pengeluaran, dan lihat siapa berutang apa."
+      },
+      {
+        "q": "Bagaimana cara menambah pengeluaran?",
+        "a": "Masuk ke Pengeluaran lalu klik 'Tambah Pengeluaran'. Isi judul, nominal, pembayar, dan peserta. Pilih metode pembagian (rata atau kustom)."
+      },
+      {
+        "q": "Bagaimana pembagian dihitung?",
+        "a": "Secara default, nominal dibagi rata ke peserta yang dipilih. Anda bisa memilih pembagian kustom dengan mengisi jumlah untuk tiap orang."
+      },
+      {
+        "q": "Mata uang apa yang didukung?",
+        "a": "Anda bisa mencatat pengeluaran dengan mata uang pilihan. Nominal ditampilkan menggunakan format lokal agar jelas."
+      },
+      {
+        "q": "Bisakah saya mengubah atau menghapus pengeluaran?",
+        "a": "Bisa. Buka detail pengeluaran, lalu gunakan aksi Edit atau Hapus di header."
+      },
+      {
+        "q": "Bagaimana cara kerja penyelesaian (settlement)?",
+        "a": "Settlement membantu melacak penggantian. Catat pembayaran antar anggota untuk mengurangi saldo yang tertunggak."
+      },
+      {
+        "q": "Bagaimana cara membagikan pengeluaran?",
+        "a": "Buka pengeluaran lalu klik 'Bagikan'. Ringkasan seperti struk akan disalin ke clipboard untuk dibagikan."
+      },
+      {
+        "q": "Apakah mendukung mode gelap?",
+        "a": "Ya. Gunakan tombol tema di header untuk beralih antara tema terang dan gelap."
+      }
+    ]
+  }
+}

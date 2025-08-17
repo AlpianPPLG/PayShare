@@ -15,28 +15,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Calculator, Home, Users, Receipt, CreditCard, BarChart3, Settings, LogOut, Menu, Plus } from "lucide-react"
+import { Calculator, Home, Users, Receipt, CreditCard, BarChart3, Settings, LogOut, Menu, Plus, HelpCircle } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { useI18n } from "@/lib/i18n/useI18n"
+import { LanguageToggle } from "@/components/language-toggle"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Groups", href: "/dashboard/groups", icon: Users },
-  { name: "Expenses", href: "/dashboard/expenses", icon: Receipt },
-  { name: "Settlements", href: "/dashboard/settlements", icon: CreditCard },
-  { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { key: "dashboard", href: "/dashboard", icon: Home },
+  { key: "groups", href: "/dashboard/groups", icon: Users },
+  { key: "expenses", href: "/dashboard/expenses", icon: Receipt },
+  { key: "settlements", href: "/dashboard/settlements", icon: CreditCard },
+  { key: "analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { key: "faq", href: "/dashboard/faq", icon: HelpCircle },
 ]
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { t } = useI18n()
 
   const handleLogout = () => {
     logout()
@@ -59,14 +63,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex h-full flex-col">
             <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
               <Calculator className="h-8 w-8 text-primary mr-3" />
-              <span className="text-xl font-bold">Expense Splitter</span>
+              <span className="text-xl font-bold">{t("app.title")}</span>
             </div>
             <nav className="flex-1 space-y-1 px-3 py-4">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
                   <Link
-                    key={item.name}
+                    key={item.key}
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
                     className={cn(
@@ -77,7 +81,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     )}
                   >
                     <item.icon className="mr-3 h-5 w-5" />
-                    {item.name}
+                    {t(`nav.${item.key}`)}
                   </Link>
                 )
               })}
@@ -91,14 +95,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex flex-col flex-grow bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
           <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
             <Calculator className="h-8 w-8 text-primary mr-3" />
-            <span className="text-xl font-bold">Expense Splitter</span>
+            <span className="text-xl font-bold">{t("app.title")}</span>
           </div>
           <nav className="flex-1 space-y-1 px-3 py-4">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
-                  key={item.name}
+                  key={item.key}
                   href={item.href}
                   className={cn(
                     "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
@@ -108,7 +112,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   )}
                 >
                   <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
+                  {t(`nav.${item.key}`)}
                 </Link>
               )
             })}
@@ -133,14 +137,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <div className="flex h-full flex-col">
                     <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
                       <Calculator className="h-8 w-8 text-primary mr-3" />
-                      <span className="text-xl font-bold">Expense Splitter</span>
+                      <span className="text-xl font-bold">{t("app.title")}</span>
                     </div>
                     <nav className="flex-1 space-y-1 px-3 py-4">
                       {navigation.map((item) => {
                         const isActive = pathname === item.href
                         return (
                           <Link
-                            key={item.name}
+                            key={item.key}
                             href={item.href}
                             onClick={() => setSidebarOpen(false)}
                             className={cn(
@@ -151,7 +155,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                             )}
                           >
                             <item.icon className="mr-3 h-5 w-5" />
-                            {item.name}
+                            {t(`nav.${item.key}`)}
                           </Link>
                         )
                       })}
@@ -165,10 +169,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Button size="sm" asChild>
                 <Link href="/dashboard/expenses/new">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Expense
+                  {t("actions.addExpense")}
                 </Link>
               </Button>
 
+              <LanguageToggle />
               <ThemeToggle />
 
               <DropdownMenu>
@@ -191,13 +196,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile">
                       <Settings className="mr-2 h-4 w-4" />
-                      Profile Settings
+                      {t("actions.profileSettings")}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    Log out
+                    {t("actions.logout")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

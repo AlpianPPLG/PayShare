@@ -1,0 +1,69 @@
+{
+  "app": {
+    "title": "Expense Splitter"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "groups": "Groups",
+    "expenses": "Expenses",
+    "settlements": "Settlements",
+    "analytics": "Analytics",
+    "faq": "FAQ"
+  },
+  "actions": {
+    "addExpense": "Add Expense",
+    "profileSettings": "Profile Settings",
+    "logout": "Log out"
+  },
+  "common": {
+    "share": "Share",
+    "copied": "Copied!"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "overviewSub": "Here's an overview of your shared expenses and balances."
+  },
+  "expenses": {
+    "back": "Back to Expenses",
+    "totalSplit": "Total Split"
+  }
+  ,
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Answers to common questions about Expense Splitter.",
+    "items": [
+      {
+        "q": "What is Expense Splitter?",
+        "a": "Expense Splitter helps you share costs with friends, family, or teams. Create groups, add expenses, and see who owes what."
+      },
+      {
+        "q": "How do I add an expense?",
+        "a": "Go to Expenses and click 'Add Expense'. Fill in the title, amount, payer, and participants. Choose a split method (equal or custom)."
+      },
+      {
+        "q": "How are splits calculated?",
+        "a": "By default, amounts are split equally among selected participants. You can choose custom splits by entering specific amounts for each person."
+      },
+      {
+        "q": "Which currencies are supported?",
+        "a": "You can record expenses in your preferred currency. Amounts are displayed using local formatting for clarity."
+      },
+      {
+        "q": "Can I edit or delete an expense?",
+        "a": "Yes. Open an expense detail, then use the Edit or Delete actions in the header."
+      },
+      {
+        "q": "How do settlements work?",
+        "a": "Settlements help track reimbursements. Record a payment between members to reduce outstanding balances."
+      },
+      {
+        "q": "How do I share an expense?",
+        "a": "Open the expense and click 'Share'. A receipt-style summary is copied to your clipboard for easy sharing."
+      },
+      {
+        "q": "Is there dark mode support?",
+        "a": "Yes. Use the theme toggle in the header to switch between light and dark themes."
+      }
+    ]
+  }
+}

@@ -111,8 +111,8 @@ export default function GroupDetailPage() {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{group.name}</h1>
-                {group.description && <p className="text-gray-600">{group.description}</p>}
+                <h1 className="text-3xl font-bold text-foreground">{group.name}</h1>
+                {group.description && <p className="text-muted-foreground">{group.description}</p>}
               </div>
             </div>
             <AddMemberDialog

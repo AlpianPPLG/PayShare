@@ -8,9 +8,11 @@ import { StatsCards } from "@/components/dashboard/stats-cards"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalOwed: 0,
@@ -91,8 +93,8 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Welcome Header */}
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Welcome back, {user?.name}!</h1>
-            <p className="text-muted-foreground">Here's an overview of your shared expenses and balances.</p>
+            <h1 className="text-3xl font-bold text-foreground">{t("dashboard.welcome", { name: user?.name || "" })}</h1>
+            <p className="text-muted-foreground">{t("dashboard.overviewSub")}</p>
           </div>
 
           {/* Stats Cards */}
