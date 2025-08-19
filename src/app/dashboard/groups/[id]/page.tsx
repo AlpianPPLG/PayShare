@@ -14,6 +14,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Users, Calendar, Mail, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import { useI18n } from "@/lib/i18n/useI18n"
 import type { GroupWithMembers } from "@/lib/types"
 
 export default function GroupDetailPage() {
@@ -22,6 +24,7 @@ export default function GroupDetailPage() {
   const [group, setGroup] = useState<GroupWithMembers | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const { t, locale } = useI18n()
 
   const getUserInitials = (name: string) => {
     return name
@@ -85,11 +88,11 @@ export default function GroupDetailPage() {
             <Button variant="ghost" asChild>
               <Link href="/dashboard/groups">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Groups
+                {t("groupDetail.back")}
               </Link>
             </Button>
             <Alert variant="destructive">
-              <AlertDescription>{error || "Group not found"}</AlertDescription>
+              <AlertDescription>{error || t("groupDetail.notFound")}</AlertDescription>
             </Alert>
           </div>
         </DashboardLayout>
@@ -107,7 +110,7 @@ export default function GroupDetailPage() {
               <Button variant="ghost" asChild>
                 <Link href="/dashboard/groups">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Groups
+                  {t("groupDetail.back")}
                 </Link>
               </Button>
               <div>
@@ -129,9 +132,9 @@ export default function GroupDetailPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Users className="h-5 w-5 mr-2" />
-                    Members ({group.member_count})
+                    {t("groupDetail.membersTitle", { count: group.member_count })}
                   </CardTitle>
-                  <CardDescription>People in this expense group</CardDescription>
+                  <CardDescription>{t("groupDetail.membersSubtitle")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -151,9 +154,14 @@ export default function GroupDetailPage() {
                           </div>
                         </div>
                         <div className="text-right">
-                          {member.user_id === group.created_by && <Badge variant="secondary">Admin</Badge>}
+                          {member.user_id === group.created_by && <Badge variant="secondary">{t("groupDetail.admin")}</Badge>}
                           <p className="text-xs text-muted-foreground mt-1">
-                            Joined {formatDistanceToNow(new Date(member.joined_at), { addSuffix: true })}
+                            {t("groupDetail.joined", {
+                              distance: formatDistanceToNow(new Date(member.joined_at), {
+                                addSuffix: true,
+                                locale: locale === "id" ? idLocale : undefined,
+                              }),
+                            })}
                           </p>
                         </div>
                       </div>
@@ -167,40 +175,45 @@ export default function GroupDetailPage() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Group Information</CardTitle>
+                  <CardTitle>{t("groupDetail.infoTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Created by</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("groupDetail.createdBy")}</p>
                     <p className="font-medium">{group.created_by_name}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Created</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("groupDetail.created")}</p>
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-2" />
-                      <p>{formatDistanceToNow(new Date(group.created_at), { addSuffix: true })}</p>
+                      <p>
+                        {formatDistanceToNow(new Date(group.created_at), {
+                          addSuffix: true,
+                          locale: locale === "id" ? idLocale : undefined,
+                        })}
+                      </p>
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Members</p>
-                    <p className="font-medium">{group.member_count} people</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("groupDetail.totalMembers")}</p>
+                    <p className="font-medium">{t("groupDetail.people", { count: group.member_count })}</p>
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle>{t("groupDetail.quickTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button asChild className="w-full">
-                    <Link href={`/dashboard/expenses/new?group=${group.id}`}>Add Expense</Link>
+                    <Link href={`/dashboard/expenses/new?group=${group.id}`}>{t("groupDetail.addExpense")}</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href={`/dashboard/expenses?group=${group.id}`}>View Expenses</Link>
+                    <Link href={`/dashboard/expenses?group=${group.id}`}>{t("groupDetail.viewExpenses")}</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href={`/dashboard/settlements`}>View Balances</Link>
+                    <Link href={`/dashboard/settlements`}>{t("groupDetail.viewBalances")}</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -2,6 +2,34 @@
   "app": {
     "title": "Expense Splitter"
   },
+  "groupDetail": {
+    "back": "Kembali ke Grup",
+    "notFound": "Grup tidak ditemukan",
+    "membersTitle": "Anggota ({count})",
+    "membersSubtitle": "Orang-orang dalam grup pengeluaran ini",
+    "admin": "Admin",
+    "joined": "Bergabung {distance}",
+    "infoTitle": "Informasi Grup",
+    "createdBy": "Dibuat oleh",
+    "created": "Dibuat",
+    "totalMembers": "Jumlah Anggota",
+    "people": "{count} orang",
+    "quickTitle": "Aksi Cepat",
+    "addExpense": "Tambah Pengeluaran",
+    "viewExpenses": "Lihat Pengeluaran",
+    "viewBalances": "Lihat Saldo"
+  },
+  "addMember": {
+    "open": "Tambah Anggota",
+    "title": "Tambah Anggota Grup",
+    "subtitle": "Cari pengguna berdasarkan nama atau email untuk ditambahkan ke grup ini.",
+    "searchLabel": "Cari Pengguna",
+    "searchPlaceholder": "Cari berdasarkan nama atau email...",
+    "resultsLabel": "Hasil Pencarian",
+    "noResults": "Tidak ada pengguna yang cocok dengan pencarian Anda.",
+    "adding": "Menambahkan...",
+    "add": "Tambah Anggota"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "groups": "Grup",
@@ -17,17 +45,101 @@
   },
   "common": {
     "share": "Bagikan",
-    "copied": "Tersalin!"
+    "copied": "Tersalin!",
+    "view": "Lihat"
   },
   "dashboard": {
     "welcome": "Selamat datang kembali, {name}!",
     "overviewSub": "Berikut ringkasan pengeluaran bersama dan saldo Anda."
   },
+  "activity": {
+    "title": "Aktivitas Terbaru",
+    "subtitle": "Aktivitas pengeluaran dan penyelesaian terbaru Anda",
+    "emptyTitle": "Belum ada aktivitas",
+    "emptyHint": "Mulailah dengan membuat grup atau menambah pengeluaran"
+  },
+  "status": {
+    "pending": "menunggu",
+    "completed": "selesai"
+  },
+  "stats": {
+    "youAreOwed": "Anda akan menerima",
+    "youOwe": "Anda berutang",
+    "activeGroups": "Grup Aktif",
+    "recentExpenses": "Pengeluaran Terbaru",
+    "youAreOwedSub": "Uang yang akan Anda terima",
+    "youOweSub": "Uang yang perlu Anda bayar",
+    "activeGroupsSub": "Grup yang Anda ikuti",
+    "recentExpensesSub": "30 hari terakhir"
+  },
+  "quick": {
+    "title": "Aksi Cepat",
+    "subtitle": "Tugas umum untuk memulai",
+    "addExpense": "Tambah Pengeluaran",
+    "addExpenseSub": "Catat pengeluaran bersama baru",
+    "createGroup": "Buat Grup",
+    "createGroupSub": "Mulai grup pengeluaran baru",
+    "recordPayment": "Catat Pembayaran",
+    "recordPaymentSub": "Tandai utang sebagai lunas",
+    "viewAnalytics": "Lihat Analitik",
+    "viewAnalyticsSub": "Lihat wawasan pengeluaran"
+  },
+  "groups": {
+    "title": "Grup",
+    "subtitle": "Kelola grup pengeluaran dan anggotanya",
+    "emptyTitle": "Belum ada grup",
+    "emptyHint": "Buat grup pertama Anda untuk mulai membagi pengeluaran dengan yang lain.",
+    "members": "{count} anggota",
+    "others": " dan {count} lainnya",
+    "createdPrefix": "Dibuat {distance}",
+    "viewDetails": "Lihat Detail",
+    "create": "Buat Grup",
+    "createNewTitle": "Buat Grup Baru",
+    "createNewDesc": "Buat grup untuk mengatur pengeluaran dengan orang-orang tertentu.",
+    "groupName": "Nama Grup",
+    "namePlaceholder": "mis., Liburan Akhir Pekan, Teman Sekamar, Makan Siang Kantor",
+    "descriptionOptional": "Deskripsi (Opsional)",
+    "descriptionPlaceholder": "Deskripsi singkat tujuan grup ini...",
+    "cancel": "Batal",
+    "creating": "Membuat...",
+    "createSubmit": "Buat Grup"
+  },
   "expenses": {
     "back": "Kembali ke Pengeluaran",
-    "totalSplit": "Total Dibagi"
-  }
-  ,
+    "totalSplit": "Total Dibagi",
+    "create": {
+      "title": "Buat Pengeluaran Baru",
+      "subtitle": "Catat pengeluaran bersama dan bagikan ke peserta",
+      "titleLabel": "Judul Pengeluaran",
+      "titlePlaceholder": "Contoh: Makan Malam di Restoran",
+      "amountLabel": "Total Jumlah (IDR)",
+      "descriptionLabel": "Deskripsi (Opsional)",
+      "descriptionPlaceholder": "Detail tambahan tentang pengeluaran ini",
+      "groupLabel": "Grup (Opsional)",
+      "paidByLabel": "Dibayar Oleh",
+      "splitMethodLabel": "Metode Pembagian",
+      "splitMethods": {
+        "equal": {
+          "label": "Pembagian Rata",
+          "description": "Bagi rata ke semua peserta"
+        },
+        "exact": {
+          "label": "Jumlah Pasti",
+          "description": "Tentukan jumlah untuk setiap orang"
+        },
+        "percentage": {
+          "label": "Persentase",
+          "description": "Bagi berdasarkan persentase kustom"
+      }
+    },
+      "participantsLabel": "Peserta",
+      "addAllMembers": "Tambahkan Semua Anggota Grup",
+      "actions": {
+        "cancel": "Batal",
+        "create": "Buat Pengeluaran"
+      }
+    }
+  },
   "faq": {
     "title": "Pertanyaan yang Sering Diajukan",
     "subtitle": "Jawaban untuk pertanyaan umum tentang Expense Splitter.",

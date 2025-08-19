@@ -3,7 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Eye } from "lucide-react"
+import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface Activity {
   id: number
@@ -17,6 +21,8 @@ interface Activity {
   }
   created_at: Date
   status?: "pending" | "completed"
+  expense_id?: number
+  expense_title?: string
 }
 
 interface RecentActivityProps {
@@ -24,6 +30,7 @@ interface RecentActivityProps {
 }
 
 export function RecentActivity({ activities }: RecentActivityProps) {
+  const { t } = useI18n()
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -56,19 +63,20 @@ export function RecentActivity({ activities }: RecentActivityProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>Your latest expense and settlement activities</CardDescription>
+        <CardTitle>{t("activity.title")}</CardTitle>
+        <CardDescription>{t("activity.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {activities.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No recent activity</p>
-              <p className="text-sm">Start by creating a group or adding an expense</p>
+              <p>{t("activity.emptyTitle")}</p>
+              <p className="text-sm">{t("activity.emptyHint")}</p>
             </div>
           ) : (
             activities.map((activity) => (
-              <div key={activity.id} className="flex items-center space-x-4">
+              <div key={activity.id} className="flex items-center justify-between space-x-4">
+                <div className="flex items-center space-x-4 flex-1">
                 <Avatar className="h-9 w-9">
                   <AvatarImage src={activity.user.avatar_url || "/placeholder.svg"} />
                   <AvatarFallback>{getUserInitials(activity.user.name)}</AvatarFallback>
@@ -83,15 +91,24 @@ export function RecentActivity({ activities }: RecentActivityProps) {
                   <p className="text-sm text-muted-foreground">{activity.description}</p>
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(activity.created_at, { addSuffix: true })}
+                      {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                     </p>
                     {activity.status && (
                       <Badge variant={activity.status === "completed" ? "default" : "secondary"}>
-                        {activity.status}
+                        {t(`status.${activity.status}`)}
                       </Badge>
                     )}
                   </div>
                 </div>
+                </div>
+                {activity.type === "expense" && activity.expense_id && (
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/dashboard/expenses/${activity.expense_id}`}>
+                      <Eye className="h-3 w-3 mr-1" />
+                      {t("common.view")}
+                    </Link>
+                  </Button>
+                )}
               </div>
             ))
           )}

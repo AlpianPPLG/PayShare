@@ -12,11 +12,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Users, Calendar, Eye } from "lucide-react"
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
+import { id as idLocale } from "date-fns/locale"
+import { useI18n } from "@/lib/i18n/useI18n"
 import type { GroupWithMembers } from "@/lib/types"
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState<GroupWithMembers[]>([])
   const [loading, setLoading] = useState(true)
+  const { t, locale } = useI18n()
 
   const getUserInitials = (name: string) => {
     return name
@@ -57,8 +60,8 @@ export default function GroupsPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Groups</h1>
-              <p className="text-muted-foreground">Manage your expense groups and members</p>
+              <h1 className="text-3xl font-bold text-foreground">{t("groups.title")}</h1>
+              <p className="text-muted-foreground">{t("groups.subtitle")}</p>
             </div>
             <CreateGroupDialog onGroupCreated={fetchGroups} />
           </div>
@@ -74,10 +77,8 @@ export default function GroupsPage() {
             <Card className="text-center py-12">
               <CardContent>
                 <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No groups yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create your first group to start splitting expenses with others.
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t("groups.emptyTitle")}</h3>
+                <p className="text-muted-foreground mb-4">{t("groups.emptyHint")}</p>
                 <CreateGroupDialog onGroupCreated={fetchGroups} />
               </CardContent>
             </Card>
@@ -91,7 +92,7 @@ export default function GroupsPage() {
                         <CardTitle className="text-lg">{group.name}</CardTitle>
                         {group.description && <CardDescription className="mt-1">{group.description}</CardDescription>}
                       </div>
-                      <Badge variant="secondary">{group.member_count} members</Badge>
+                      <Badge variant="secondary">{t("groups.members", { count: group.member_count })}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -116,14 +117,19 @@ export default function GroupsPage() {
                             .slice(0, 2)
                             .map((m) => m.user_name)
                             .join(", ")}
-                          {group.member_count > 2 && ` and ${group.member_count - 2} others`}
+                          {group.member_count > 2 && t("groups.others", { count: group.member_count - 2 })}
                         </span>
                       </div>
 
                       {/* Group Info */}
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4 mr-1" />
-                        Created {formatDistanceToNow(new Date(group.created_at), { addSuffix: true })}
+                        {t("groups.createdPrefix", {
+                          distance: formatDistanceToNow(new Date(group.created_at), {
+                            addSuffix: true,
+                            locale: locale === "id" ? idLocale : undefined,
+                          }),
+                        })}
                       </div>
 
                       {/* Actions */}
@@ -131,7 +137,7 @@ export default function GroupsPage() {
                         <Button asChild size="sm" className="flex-1">
                           <Link href={`/dashboard/groups/${group.id}`}>
                             <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                            {t("groups.viewDetails")}
                           </Link>
                         </Button>
                       </div>

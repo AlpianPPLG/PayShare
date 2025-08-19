@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loader2, UserPlus, Search } from "lucide-react"
 import type { AuthUser } from "@/lib/types"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface AddMemberDialogProps {
   groupId: number
@@ -32,6 +33,7 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
   const [error, setError] = useState("")
+  const { t } = useI18n()
 
   const getUserInitials = (name: string) => {
     return name
@@ -116,13 +118,13 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <UserPlus className="h-4 w-4 mr-2" />
-          Add Member
+          {t("addMember.open")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Group Member</DialogTitle>
-          <DialogDescription>Search for users by name or email to add them to this group.</DialogDescription>
+          <DialogTitle>{t("addMember.title")}</DialogTitle>
+          <DialogDescription>{t("addMember.subtitle")}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
@@ -133,12 +135,12 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
           )}
 
           <div className="grid gap-2">
-            <Label htmlFor="search">Search Users</Label>
+            <Label htmlFor="search">{t("addMember.searchLabel")}</Label>
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="search"
-                placeholder="Search by name or email..."
+                placeholder={t("addMember.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -150,7 +152,7 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
           {/* Search Results */}
           {searchResults.length > 0 && (
             <div className="grid gap-2 max-h-48 overflow-y-auto">
-              <Label>Search Results</Label>
+              <Label>{t("addMember.resultsLabel")}</Label>
               {searchResults.map((user) => (
                 <div
                   key={user.id}
@@ -173,22 +175,22 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
           )}
 
           {searchQuery.length >= 2 && searchResults.length === 0 && !searching && (
-            <p className="text-sm text-muted-foreground text-center py-4">No users found matching your search.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{t("addMember.noResults")}</p>
           )}
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-            Cancel
+            {t("groups.cancel")}
           </Button>
           <Button onClick={handleAddMember} disabled={!selectedUser || loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding...
+                {t("addMember.adding")}
               </>
             ) : (
-              "Add Member"
+              t("addMember.add")
             )}
           </Button>
         </DialogFooter>

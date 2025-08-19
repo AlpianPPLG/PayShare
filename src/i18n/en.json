@@ -2,6 +2,54 @@
   "app": {
     "title": "Expense Splitter"
   },
+  "groupDetail": {
+    "back": "Back to Groups",
+    "notFound": "Group not found",
+    "membersTitle": "Members ({count})",
+    "membersSubtitle": "People in this expense group",
+    "admin": "Admin",
+    "joined": "Joined {distance}",
+    "infoTitle": "Group Information",
+    "createdBy": "Created by",
+    "created": "Created",
+    "totalMembers": "Total Members",
+    "people": "{count} people",
+    "quickTitle": "Quick Actions",
+    "addExpense": "Add Expense",
+    "viewExpenses": "View Expenses",
+    "viewBalances": "View Balances"
+  },
+  "addMember": {
+    "open": "Add Member",
+    "title": "Add Group Member",
+    "subtitle": "Search for users by name or email to add them to this group.",
+    "searchLabel": "Search Users",
+    "searchPlaceholder": "Search by name or email...",
+    "resultsLabel": "Search Results",
+    "noResults": "No users found matching your search.",
+    "adding": "Adding...",
+    "add": "Add Member"
+  },
+  "groups": {
+    "title": "Groups",
+    "subtitle": "Manage your expense groups and members",
+    "emptyTitle": "No groups yet",
+    "emptyHint": "Create your first group to start splitting expenses with others.",
+    "members": "{count} members",
+    "others": " and {count} others",
+    "createdPrefix": "Created {distance}",
+    "viewDetails": "View Details",
+    "create": "Create Group",
+    "createNewTitle": "Create New Group",
+    "createNewDesc": "Create a group to organize expenses with specific people.",
+    "groupName": "Group Name",
+    "namePlaceholder": "e.g., Weekend Trip, Roommates, Office Lunch",
+    "descriptionOptional": "Description (Optional)",
+    "descriptionPlaceholder": "Brief description of what this group is for...",
+    "cancel": "Cancel",
+    "creating": "Creating...",
+    "createSubmit": "Create Group"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "groups": "Groups",
@@ -17,11 +65,44 @@
   },
   "common": {
     "share": "Share",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "view": "View"
   },
   "dashboard": {
     "welcome": "Welcome back, {name}!",
     "overviewSub": "Here's an overview of your shared expenses and balances."
+  },
+  "activity": {
+    "title": "Recent Activity",
+    "subtitle": "Your latest expense and settlement activities",
+    "emptyTitle": "No recent activity",
+    "emptyHint": "Start by creating a group or adding an expense"
+  },
+  "status": {
+    "pending": "pending",
+    "completed": "completed"
+  },
+  "stats": {
+    "youAreOwed": "You are owed",
+    "youOwe": "You owe",
+    "activeGroups": "Active Groups",
+    "recentExpenses": "Recent Expenses",
+    "youAreOwedSub": "Money coming to you",
+    "youOweSub": "Money you need to pay",
+    "activeGroupsSub": "Groups you're part of",
+    "recentExpensesSub": "Last 30 days"
+  },
+  "quick": {
+    "title": "Quick Actions",
+    "subtitle": "Common tasks to get you started",
+    "addExpense": "Add Expense",
+    "addExpenseSub": "Record a new shared expense",
+    "createGroup": "Create Group",
+    "createGroupSub": "Start a new expense group",
+    "recordPayment": "Record Payment",
+    "recordPaymentSub": "Mark a debt as settled",
+    "viewAnalytics": "View Analytics",
+    "viewAnalyticsSub": "See spending insights"
   },
   "expenses": {
     "back": "Back to Expenses",

@@ -8,85 +8,70 @@ import { StatsCards } from "@/components/dashboard/stats-cards"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const { t } = useI18n()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [stats, setStats] = useState({
     totalOwed: 0,
     totalOwes: 0,
     activeGroups: 0,
     recentExpenses: 0,
   })
-  interface Activity {
-    id: number;
-    type: 'expense' | 'settlement' | 'group';
-    title: string;
-    description: string;
-    amount?: number;
-    user: {
-      name: string;
-      avatar_url?: string;
-    };
-    created_at: Date;
-    status?: 'pending' | 'completed';
-  }
 
-  const [activities, setActivities] = useState<Activity[]>([])
+  const [activities, setActivities] = useState<any[]>([])
 
   useEffect(() => {
-    // Simulate loading dashboard data
-    // In a real app, you would fetch this from your API
     const loadDashboardData = async () => {
-      // Mock data for demonstration
-      setTimeout(() => {
-        setStats({
-          totalOwed: 250000,
-          totalOwes: 150000,
-          activeGroups: 3,
-          recentExpenses: 12,
+      try {
+        const token = localStorage.getItem("auth_token")
+        if (!token) {
+          setError("No authentication token found")
+          setLoading(false)
+          return
+        }
+
+        const response = await fetch("/api/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         })
 
-        setActivities([
-          {
-            id: 1,
-            type: "expense",
-            title: "Dinner at Restaurant",
-            description: "Split with 3 friends",
-            amount: 120000,
-            user: { name: "John Doe" },
-            created_at: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-            status: "pending",
-          },
-          {
-            id: 2,
-            type: "settlement",
-            title: "Payment received",
-            description: "Jane paid you back for groceries",
-            amount: 75000,
-            user: { name: "Jane Smith" },
-            created_at: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-            status: "completed",
-          },
-          {
-            id: 3,
-            type: "group",
-            title: "Joined Weekend Trip group",
-            description: "Added to group by Bob Wilson",
-            user: { name: "Bob Wilson" },
-            created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-          },
-        ])
-
+        const data = await response.json()
+        if (data.success) {
+          setStats(data.data.stats)
+          setActivities(data.data.activities)
+        } else {
+          setError(data.error || "Failed to load dashboard data")
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+        setError("Network error")
+      } finally {
         setLoading(false)
-      }, 1000)
+      }
     }
 
     loadDashboardData()
   }, [])
 
+  if (error) {
+    return (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <div className="space-y-6">
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </div>
+        </DashboardLayout>
+      </ProtectedRoute>
+    )
+  }
   return (
     <ProtectedRoute>
       <DashboardLayout>

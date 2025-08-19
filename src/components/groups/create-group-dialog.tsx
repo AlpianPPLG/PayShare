@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Loader2, Plus } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface CreateGroupDialogProps {
   onGroupCreated: () => void
@@ -29,6 +30,7 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
   const [description, setDescription] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const { t } = useI18n()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,13 +70,13 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Create Group
+          {t("groups.create")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Group</DialogTitle>
-          <DialogDescription>Create a group to organize expenses with specific people.</DialogDescription>
+          <DialogTitle>{t("groups.createNewTitle")}</DialogTitle>
+          <DialogDescription>{t("groups.createNewDesc")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -85,10 +87,10 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="name">Group Name</Label>
+              <Label htmlFor="name">{t("groups.groupName")}</Label>
               <Input
                 id="name"
-                placeholder="e.g., Weekend Trip, Roommates, Office Lunch"
+                placeholder={t("groups.namePlaceholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -97,10 +99,10 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description">{t("groups.descriptionOptional")}</Label>
               <Textarea
                 id="description"
-                placeholder="Brief description of what this group is for..."
+                placeholder={t("groups.descriptionPlaceholder")}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={loading}
@@ -110,16 +112,16 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-              Cancel
+              {t("groups.cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  {t("groups.creating")}
                 </>
               ) : (
-                "Create Group"
+                t("groups.createSubmit")
               )}
             </Button>
           </DialogFooter>

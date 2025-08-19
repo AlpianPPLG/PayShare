@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Users, Receipt, CreditCard } from "lucide-react"
 import Link from "next/link"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export function QuickActions() {
+  const { t } = useI18n()
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
-        <CardDescription>Common tasks to get you started</CardDescription>
+        <CardTitle>{t("quick.title")}</CardTitle>
+        <CardDescription>{t("quick.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -19,8 +21,8 @@ export function QuickActions() {
               <div className="flex items-center space-x-3">
                 <Receipt className="h-5 w-5" />
                 <div className="text-left">
-                  <div className="font-medium">Add Expense</div>
-                  <div className="text-xs text-muted-foreground">Record a new shared expense</div>
+                  <div className="font-medium">{t("quick.addExpense")}</div>
+                  <div className="text-xs text-muted-foreground">{t("quick.addExpenseSub")}</div>
                 </div>
               </div>
             </Link>
@@ -31,8 +33,8 @@ export function QuickActions() {
               <div className="flex items-center space-x-3">
                 <Users className="h-5 w-5" />
                 <div className="text-left">
-                  <div className="font-medium">Create Group</div>
-                  <div className="text-xs text-muted-foreground">Start a new expense group</div>
+                  <div className="font-medium">{t("quick.createGroup")}</div>
+                  <div className="text-xs text-muted-foreground">{t("quick.createGroupSub")}</div>
                 </div>
               </div>
             </Link>
@@ -43,8 +45,8 @@ export function QuickActions() {
               <div className="flex items-center space-x-3">
                 <CreditCard className="h-5 w-5" />
                 <div className="text-left">
-                  <div className="font-medium">Record Payment</div>
-                  <div className="text-xs text-muted-foreground">Mark a debt as settled</div>
+                  <div className="font-medium">{t("quick.recordPayment")}</div>
+                  <div className="text-xs text-muted-foreground">{t("quick.recordPaymentSub")}</div>
                 </div>
               </div>
             </Link>
@@ -55,8 +57,8 @@ export function QuickActions() {
               <div className="flex items-center space-x-3">
                 <Plus className="h-5 w-5" />
                 <div className="text-left">
-                  <div className="font-medium">View Analytics</div>
-                  <div className="text-xs text-muted-foreground">See spending insights</div>
+                  <div className="font-medium">{t("quick.viewAnalytics")}</div>
+                  <div className="text-xs text-muted-foreground">{t("quick.viewAnalyticsSub")}</div>
                 </div>
               </div>
             </Link>
