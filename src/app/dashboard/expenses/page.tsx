@@ -18,6 +18,7 @@ import { formatDistanceToNow } from "date-fns"
 import type { ExpenseWithDetails, Category } from "@/lib/types"
 import { toast } from "sonner"
 import { Select } from "react-day-picker"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface FilterState {
   search: string
@@ -39,6 +40,7 @@ interface Participant {
 }
 
 export default function ExpensesPage() {
+  const { t } = useI18n()
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
   const [filteredExpenses, setFilteredExpenses] = useState<ExpenseWithDetails[]>([])
   const [groups, setGroups] = useState<Array<{ id: string; name: string }>>([])
@@ -391,13 +393,13 @@ export default function ExpensesPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Expenses</h1>
-              <p className="text-muted-foreground">Track and manage your shared expenses</p>
+              <h1 className="text-3xl font-bold text-foreground">{t('expenses.title')}</h1>
+              <p className="text-muted-foreground">{t('expenses.subtitle')}</p>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
                 <Filter className="h-4 w-4 mr-2" />
-                Filters
+                {t('expenses.filters')}
               </Button>
               <div className="flex items-center space-x-2">
                 <Select
@@ -436,12 +438,12 @@ export default function ExpensesPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      Exporting...
+                      {t('expenses.exporting')}
                     </>
                   ) : (
                     <>
                       <Download className="h-4 w-4 mr-2" />
-                      Export
+                      {t('expenses.export')}
                     </>
                   )}
                 </Button>
@@ -450,7 +452,7 @@ export default function ExpensesPage() {
               <Button asChild>
                 <Link href="/dashboard/expenses/new">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Expense
+                  {t('expenses.addExpense')}
                 </Link>
               </Button>
             </div>
@@ -471,7 +473,7 @@ export default function ExpensesPage() {
                 <Card>
                   <CardContent className="p-4">
                     <div className="text-2xl font-bold">{filteredExpenses.length}</div>
-                    <p className="text-sm text-muted-foreground">Total Expenses</p>
+                    <p className="text-sm text-muted-foreground">{t('expenses.totalExpenses')}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -481,7 +483,7 @@ export default function ExpensesPage() {
                         filteredExpenses.reduce((sum, e) => sum + Number(e.total_amount || 0), 0),
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">Total Amount</p>
+                    <p className="text-sm text-muted-foreground">{t('expenses.totalAmount')}</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -489,7 +491,7 @@ export default function ExpensesPage() {
                     <div className="text-2xl font-bold">
                       {filteredExpenses.reduce((sum, e) => sum + e.participants.length, 0)}
                     </div>
-                    <p className="text-sm text-muted-foreground">Total Participants</p>
+                    <p className="text-sm text-muted-foreground">{t('expenses.totalParticipants')}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -512,12 +514,12 @@ export default function ExpensesPage() {
                       }}
                     />
                     <label htmlFor="select-all" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Select All
+                      {t('expenses.selectAll')}
                     </label>
                   </div>
                   {selectedExpenses.length > 0 && (
                     <div className="text-sm text-muted-foreground">
-                      {selectedExpenses.length} of {filteredExpenses.length} selected
+                      {t('expenses.selected', { count: selectedExpenses.length, total: filteredExpenses.length })}
                     </div>
                   )}
                 </div>
@@ -535,19 +537,19 @@ export default function ExpensesPage() {
                   <CardContent>
                     <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">
-                      {expenses.length === 0 ? "No expenses yet" : "No expenses match your filters"}
+                      {expenses.length === 0 ? t('expenses.noExpenses') : t('expenses.noExpensesFilter')}
                     </h3>
                     <p className="text-muted-foreground mb-4">
                       {expenses.length === 0
-                        ? "Start by creating your first shared expense."
-                        : "Try adjusting your filters or create a new expense."}
+                        ? t('expenses.noExpensesHint')
+                        : t('expenses.noExpensesFilterHint')}
                     </p>
                     <div className="flex justify-center space-x-2">
                       <QuickSplitDialog onExpenseCreated={fetchExpenses} />
                       <Button asChild variant="outline">
                         <Link href="/dashboard/expenses/new">
                           <Plus className="h-4 w-4 mr-2" />
-                          Add Expense
+                          {t('expenses.addExpense')}
                         </Link>
                       </Button>
                     </div>
@@ -593,11 +595,11 @@ export default function ExpensesPage() {
                                   const totalCount = expense.participants.length
 
                                   if (settledCount === totalCount) {
-                                    return <Badge variant="default">Settled</Badge>
+                                    return <Badge variant="default">{t('expenses.settled')}</Badge>
                                   } else if (settledCount > 0) {
-                                    return <Badge variant="outline">Partial</Badge>
+                                    return <Badge variant="outline">{t('expenses.partial')}</Badge>
                                   } else {
-                                    return <Badge variant="secondary">Pending</Badge>
+                                    return <Badge variant="secondary">{t('expenses.pending')}</Badge>
                                   }
                                 })()}
                               </div>
@@ -607,22 +609,21 @@ export default function ExpensesPage() {
                               )}
 
                               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                <div className="flex items-center">
-                                  <Avatar className="h-6 w-6 mr-2">
-                                    <AvatarImage src="/placeholder.svg" />
-                                    <AvatarFallback className="text-xs">
-                                      {getUserInitials(expense.paid_by_name)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  Paid by {expense.paid_by_name}
-                                </div>
+                                                                  <div className="flex items-center">
+                                    <Avatar className="h-6 w-6 mr-2">
+                                      <AvatarImage src="/placeholder.svg" />
+                                      <AvatarFallback className="text-xs">
+                                        {getUserInitials(expense.paid_by_name)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    {t('expenses.paidBy')} {expense.paid_by_name}
+                                  </div>
                                 <div className="flex items-center">
                                   <Calendar className="h-4 w-4 mr-1" />
                                   {formatDistanceToNow(new Date(expense.expense_date), { addSuffix: true })}
                                 </div>
                                 <div>
-                                  {expense.participants.length} participant
-                                  {expense.participants.length !== 1 ? "s" : ""}
+                                  {expense.participants.length} {expense.participants.length === 1 ? t('expenses.participants') : t('expenses.participantsPlural')}
                                 </div>
                               </div>
                             </div>
@@ -636,7 +637,7 @@ export default function ExpensesPage() {
                               <Button asChild size="sm" variant="outline">
                                 <Link href={`/dashboard/expenses/${expense.id}`}>
                                   <Eye className="h-4 w-4 mr-2" />
-                                  View Details
+                                  {t('expenses.viewDetails')}
                                 </Link>
                               </Button>
                             </div>

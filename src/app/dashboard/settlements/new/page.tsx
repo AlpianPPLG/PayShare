@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -16,6 +17,7 @@ import Link from "next/link"
 export default function NewSettlementPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { t } = useI18n()
   const expenseId = searchParams.get('expense')
   
   const [loading, setLoading] = useState(!!expenseId)
@@ -57,10 +59,10 @@ export default function NewSettlementPage() {
           }))
         }
       } else {
-        setError(data.error || "Failed to load expense details")
+        setError(data.error || t('settlements.failedToLoadDetails'))
       }
     } catch (error) {
-      setError("Network error")
+      setError(t('settlements.networkError'))
     } finally {
       setLoading(false)
     }
@@ -94,10 +96,10 @@ export default function NewSettlementPage() {
       if (data.success) {
         router.push(`/dashboard/expenses/${expenseId}`)
       } else {
-        setError(data.error || "Failed to record settlement")
+        setError(data.error || t('settlements.failedToRecord'))
       }
     } catch (error) {
-      setError("Network error")
+      setError(t('settlements.networkError'))
     } finally {
       setSubmitting(false)
     }
@@ -131,19 +133,19 @@ export default function NewSettlementPage() {
             <Button variant="ghost" asChild>
               <Link href="/dashboard/expenses">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Expenses
+                {t('settlements.backToExpense')}
               </Link>
             </Button>
             <Alert variant="destructive">
               <AlertDescription>
-                {error || "Expense not found or you don't have permission to view it"}
+                {error || t('settlements.expenseNotFoundOrNoPermission')}
               </AlertDescription>
             </Alert>
           </div>
         </DashboardLayout>
       </ProtectedRoute>
     )
-  }
+  } 
 
   return (
     <ProtectedRoute>
@@ -153,12 +155,12 @@ export default function NewSettlementPage() {
             <Button variant="ghost" asChild>
               <Link href={expenseId ? `/dashboard/expenses/${expenseId}` : "/dashboard/expenses"}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to {expense ? "Expense" : "Expenses"}
+                {t('settlements.backToExpense')}
               </Link>
             </Button>
-            <h1 className="text-3xl font-bold mt-4">Record Settlement</h1>
+            <h1 className="text-3xl font-bold mt-4">{t('settlements.title')}</h1>
             <p className="text-muted-foreground">
-              Record a payment for {expense?.title || 'this expense'}
+              {t('settlements.subtitle', { expenseTitle: expense?.title || 'this expense' })}
             </p>
           </div>
 
@@ -166,7 +168,7 @@ export default function NewSettlementPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <CreditCard className="h-5 w-5 mr-2" />
-                Settlement Details
+                {t('settlements.settlementDetails')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -178,13 +180,13 @@ export default function NewSettlementPage() {
                 )}
 
                 <div>
-                  <Label htmlFor="amount">Amount (IDR)</Label>
+                  <Label htmlFor="amount">{t('settlements.amount')}</Label>
                   <Input
                     id="amount"
                     name="amount"
                     type="number"
                     step="0.01"
-                    placeholder="0"
+                    placeholder={t('settlements.amountPlaceholder')}
                     value={formData.amount}
                     onChange={handleInputChange}
                     required
@@ -193,7 +195,7 @@ export default function NewSettlementPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="settlement_date">Settlement Date</Label>
+                  <Label htmlFor="settlement_date">{t('settlements.settlementDate')}</Label>
                   <Input
                     id="settlement_date"
                     name="settlement_date"
@@ -206,11 +208,11 @@ export default function NewSettlementPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Label htmlFor="notes">{t('settlements.notes')}</Label>
                   <Textarea
                     id="notes"
                     name="notes"
-                    placeholder="Add any notes about this settlement..."
+                    placeholder={t('settlements.notesPlaceholder')}
                     value={formData.notes}
                     onChange={handleInputChange}
                     disabled={submitting}
@@ -225,16 +227,16 @@ export default function NewSettlementPage() {
                     onClick={() => router.back()}
                     disabled={submitting}
                   >
-                    Cancel
+                    {t('settlements.cancel')}
                   </Button>
                   <Button type="submit" disabled={submitting}>
                     {submitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Recording...
+                        {t('settlements.recording')}
                       </>
                     ) : (
-                      'Record Settlement'
+                      t('settlements.recordSettlement')
                     )}
                   </Button>
                 </div>

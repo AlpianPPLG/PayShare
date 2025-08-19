@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Filter, X, Search } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface ExpenseFiltersProps {
   onFiltersChange: (filters: {
@@ -25,6 +26,7 @@ interface ExpenseFiltersProps {
 }
 
 export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseFiltersProps) {
+  const { t } = useI18n()
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState("all")
   const [startDate, setStartDate] = useState("")
@@ -98,7 +100,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center">
             <Filter className="h-5 w-5 mr-2" />
-            Filters
+            {t('expenses.expenseFilters.title')}
             {activeFiltersCount > 0 && (
               <Badge variant="secondary" className="ml-2">
                 {activeFiltersCount}
@@ -116,12 +118,12 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
       <CardContent className="space-y-4">
         {/* Search */}
         <div>
-          <Label htmlFor="search">Search</Label>
+          <Label htmlFor="search">{t('expenses.expenseFilters.search')}</Label>
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               id="search"
-              placeholder="Search expenses..."
+              placeholder={t('expenses.expenseFilters.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -131,13 +133,13 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
 
         {/* Quick Date Filters */}
         <div>
-          <Label className="text-sm font-medium">Quick Periods</Label>
+          <Label className="text-sm font-medium">{t('expenses.expenseFilters.quickPeriods')}</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {[
-              { label: "Last 7 days", value: 7 },
-              { label: "Last 30 days", value: 30 },
-              { label: "Last 90 days", value: 90 },
-              { label: "This year", value: 365 },
+              { label: t('expenses.expenseFilters.last7Days'), value: 7 },
+              { label: t('expenses.expenseFilters.last30Days'), value: 30 },
+              { label: t('expenses.expenseFilters.last90Days'), value: 90 },
+              { label: t('expenses.expenseFilters.thisYear'), value: 365 },
             ].map((option) => (
               <Button
                 key={option.value}
@@ -154,7 +156,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
         {/* Date Range */}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="start-date">Start Date</Label>
+            <Label htmlFor="start-date">{t('expenses.expenseFilters.startDate')}</Label>
             <Input
               id="start-date"
               type="date"
@@ -163,7 +165,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
             />
           </div>
           <div>
-            <Label htmlFor="end-date">End Date</Label>
+            <Label htmlFor="end-date">{t('expenses.expenseFilters.endDate')}</Label>
             <Input
               id="end-date"
               type="date"
@@ -175,13 +177,13 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
 
         {/* Category Filter */}
         <div>
-          <Label htmlFor="category">Category</Label>
+          <Label htmlFor="category">{t('expenses.expenseFilters.category')}</Label>
           <Select value={category} onValueChange={setCategory}>
             <SelectTrigger>
-              <SelectValue placeholder="All categories" />
+              <SelectValue placeholder={t('expenses.expenseFilters.allCategories')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="all">{t('expenses.expenseFilters.allCategories')}</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.id} value={cat.name.toLowerCase().replace(/\s+/g, "_")}>
                   {cat.icon} {cat.name}
@@ -193,14 +195,14 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
 
         {/* Group Filter */}
         <div>
-          <Label htmlFor="group">Group</Label>
+          <Label htmlFor="group">{t('expenses.expenseFilters.group')}</Label>
           <Select value={groupId} onValueChange={setGroupId}>
             <SelectTrigger>
-              <SelectValue placeholder="All groups" />
+              <SelectValue placeholder={t('expenses.expenseFilters.allGroups')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All groups</SelectItem>
-              <SelectItem value="no-group">No Group</SelectItem>
+              <SelectItem value="all">{t('expenses.expenseFilters.allGroups')}</SelectItem>
+              <SelectItem value="no-group">{t('settlements.noGroup')}</SelectItem>
               {groups.map((group) => (
                 <SelectItem key={group.id} value={group.id.toString()}>
                   {group.name}
@@ -212,13 +214,13 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
 
         {/* Status Filter */}
         <div>
-          <Label htmlFor="status">Settlement Status</Label>
+          <Label htmlFor="status">{t('expenses.expenseFilters.settlementStatus')}</Label>
           <Select value={status} onValueChange={setStatus}>
             <SelectTrigger>
-              <SelectValue placeholder="All statuses" />
+              <SelectValue placeholder={t('expenses.expenseFilters.allStatuses')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="all">{t('expenses.expenseFilters.allStatuses')}</SelectItem>
               <SelectItem value="settled">Fully Settled</SelectItem>
               <SelectItem value="partial">Partially Settled</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
@@ -229,7 +231,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
         {/* Sort Options */}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="sort-by">Sort By</Label>
+            <Label htmlFor="sort-by">{t('expenses.expenseFilters.sortBy')}</Label>
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger>
                 <SelectValue />
@@ -243,7 +245,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
             </Select>
           </div>
           <div>
-            <Label htmlFor="sort-order">Order</Label>
+            <Label htmlFor="sort-order">{t('expenses.expenseFilters.order')}</Label>
             <Select 
               value={sortOrder} 
               onValueChange={(value: 'asc' | 'desc') => setSortOrder(value)}
@@ -252,8 +254,8 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="desc">Newest First</SelectItem>
-                <SelectItem value="asc">Oldest First</SelectItem>
+                <SelectItem value="desc">{t('expenses.expenseFilters.newestFirst')}</SelectItem>
+                <SelectItem value="asc">{t('expenses.expenseFilters.oldestFirst')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -261,7 +263,7 @@ export function ExpenseFilters({ onFiltersChange, groups, categories }: ExpenseF
 
         <Button onClick={handleApplyFilters} className="w-full">
           <Calendar className="h-4 w-4 mr-2" />
-          Apply Filters
+          {t('expenses.expenseFilters.applyFilters')}
         </Button>
       </CardContent>
     </Card>

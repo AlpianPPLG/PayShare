@@ -80,17 +80,17 @@ export default function ExpenseDetailPage() {
       if (data.success) {
         setExpense(data.data.expense)
       } else {
-        setError(data.error || "Failed to load expense")
+        setError(data.error || t('settlements.failedToLoad'))
       }
     } catch (error) {
-      setError("Network error")
+      setError(t('settlements.networkError'))
     } finally {
       setLoading(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this expense?")) return
+    if (!confirm(t('settlements.confirmDelete'))) return
 
     try {
       const token = localStorage.getItem("auth_token")
@@ -105,10 +105,10 @@ export default function ExpenseDetailPage() {
       if (data.success) {
         router.push("/dashboard/expenses")
       } else {
-        setError(data.error || "Failed to delete expense")
+        setError(data.error || t('settlements.failedToDelete'))
       }
     } catch (error) {
-      setError("Network error")
+      setError(t('settlements.networkError'))
     }
   }
 
@@ -208,11 +208,11 @@ export default function ExpenseDetailPage() {
             <Button variant="ghost" asChild>
               <Link href="/dashboard/expenses">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Expenses
+                {t('expenseDetail.backToExpenses')}
               </Link>
             </Button>
             <Alert variant="destructive">
-              <AlertDescription>{error || "Expense not found"}</AlertDescription>
+              <AlertDescription>{error || t('settlements.expenseNotFound')}</AlertDescription>
             </Alert>
           </div>
         </DashboardLayout>
@@ -236,7 +236,7 @@ export default function ExpenseDetailPage() {
               <Button variant="ghost" asChild>
                 <Link href="/dashboard/expenses">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Expenses
+                  {t('expenseDetail.backToExpenses')}
                 </Link>
               </Button>
               <div>
@@ -264,12 +264,12 @@ export default function ExpenseDetailPage() {
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/expenses/${expense.id}/edit`}>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  {t('expenseDetail.edit')}
                 </Link>
               </Button>
               <Button variant="destructive" size="sm" onClick={handleDelete}>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                {t('expenseDetail.delete')}
               </Button>
             </div>
           </div>
@@ -280,28 +280,28 @@ export default function ExpenseDetailPage() {
               {/* Expense Overview */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Expense Details</CardTitle>
+                  <CardTitle>{t('expenseDetail.expenseDetails')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Amount</p>
+                      <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.totalAmount')}</p>
                       <p className="text-3xl font-bold text-primary">{formatCurrency(expense.total_amount)}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Split Method</p>
+                      <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.splitMethod')}</p>
                       <Badge variant="outline" className="capitalize">
                         {expense.split_method} Split
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Category</p>
+                      <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.category')}</p>
                       <p className="font-medium capitalize">
                         {expense.category.replace(/_/g, " ").replace(/&/g, "&")}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Currency</p>
+                      <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.currency')}</p>
                       <p className="font-medium">{expense.currency}</p>
                     </div>
                   </div>
@@ -313,9 +313,9 @@ export default function ExpenseDetailPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Users className="h-5 w-5 mr-2" />
-                    Participants ({expense.participants.length})
+                    {t('expenseDetail.participants', { count: expense.participants.length })}
                   </CardTitle>
-                  <CardDescription>How the expense is split among participants</CardDescription>
+                  <CardDescription>{t('expenseDetail.participantsSubtitle')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -338,13 +338,13 @@ export default function ExpenseDetailPage() {
                           )}
                           <div className="mt-1">
                             <Badge variant={participant.is_settled ? "default" : "secondary"} className="mb-1">
-                              {participant.is_settled ? "Settled" : "Pending"}
+                              {participant.is_settled ? t('expenseDetail.settled') : t('expenseDetail.pending')}
                             </Badge>
                             {!participant.is_settled && participant.amount_owed > 0 && (
                               <Button variant="outline" size="sm" className="ml-2" asChild>
                                 <Link href={`/dashboard/settlements/new?expense=${expense.id}&participant=${participant.user_id}`}>
                                   <CreditCard className="h-3 w-3 mr-1" />
-                                  Record
+                                  {t('expenseDetail.record')}
                                 </Link>
                               </Button>
                             )}
@@ -357,7 +357,7 @@ export default function ExpenseDetailPage() {
                   <Separator className="my-4" />
                   
                   <div className="flex justify-between items-center font-medium">
-                    <span>Total Split</span>
+                    <span>{t('expenses.totalSplit')}</span>
                     <span>{formatCurrency(totalSplit)}</span>
                   </div>
                 </CardContent>
@@ -369,11 +369,11 @@ export default function ExpenseDetailPage() {
               {/* Expense Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Information</CardTitle>
+                  <CardTitle>{t('expenseDetail.information')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Paid by</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.paidBy')}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <Avatar className="h-6 w-6">
                         <AvatarImage src="/placeholder.svg" />
@@ -384,7 +384,7 @@ export default function ExpenseDetailPage() {
                   </div>
                   
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Date</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.date')}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <Calendar className="h-4 w-4" />
                       <p>{new Date(expense.expense_date).toLocaleDateString()}</p>
@@ -396,7 +396,7 @@ export default function ExpenseDetailPage() {
 
                   {expense.group_name && (
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Group</p>
+                      <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.group')}</p>
                       <Badge variant="secondary" className="mt-1">
                         <Users className="h-3 w-3 mr-1" />
                         {expense.group_name}
@@ -405,7 +405,7 @@ export default function ExpenseDetailPage() {
                   )}
 
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Created</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('expenseDetail.created')}</p>
                     <p className="text-sm">{formatDistanceToNow(new Date(expense.created_at), { addSuffix: true })}</p>
                   </div>
                 </CardContent>
@@ -414,19 +414,19 @@ export default function ExpenseDetailPage() {
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+                  <CardTitle>{t('expenseDetail.quickActions')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <Button asChild className="w-full">
                     <Link href={`/dashboard/settlements/new?expense=${expense.id}`}>
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Record Settlement
+                      {t('expenseDetail.recordSettlement')}
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
                     <Link href={`/dashboard/expenses/new?duplicate=${expense.id}`}>
                       <Receipt className="h-4 w-4 mr-2" />
-                      Duplicate Expense
+                      {t('expenseDetail.duplicateExpense')}
                     </Link>
                   </Button>
                 </CardContent>

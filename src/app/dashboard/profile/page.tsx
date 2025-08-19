@@ -13,8 +13,10 @@ import { useAuth } from "@/lib/hooks/use-auth"
 import { toast } from "sonner"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function ProfileSettingsPage() {
+  const { t } = useI18n()
   const { user, updateProfile } = useAuth()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -59,21 +61,20 @@ export default function ProfileSettingsPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          <Button variant="ghost" asChild>
+          <div className="flex items-center gap-2">
             <Link href="/dashboard">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
             </Link>
-          </Button>
+            <h1 className="text-3xl font-bold text-foreground">{t('profile.pageTitle')}</h1>
+          </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Profile Settings</h1>
-            <p className="text-muted-foreground">Manage your personal information</p>
+            <p className="text-muted-foreground">{t('profile.pageSubtitle')}</p>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Profile</CardTitle>
-              <CardDescription>Update your basic information</CardDescription>
+              <CardTitle>{t('profile.profile')}</CardTitle>
+              <CardDescription>{t('profile.updateBasicInfo')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="grid gap-6 md:grid-cols-3" onSubmit={onSubmit}>
@@ -83,23 +84,23 @@ export default function ProfileSettingsPage() {
                       <AvatarImage src={user?.avatar_url || "/placeholder.svg"} />
                       <AvatarFallback>{getUserInitials(user?.name || "U")}</AvatarFallback>
                     </Avatar>
-                    <p className="text-sm text-muted-foreground">Avatar is managed automatically in this version.</p>
+                    <p className="text-sm text-muted-foreground">{t('profile.avatarManaged')}</p>
                   </div>
                 </div>
 
                 <div className="md:col-span-2 space-y-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
+                    <Label htmlFor="name">{t('profile.name')}</Label>
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('profile.email')}</Label>
                     <Input id="email" value={email} disabled readOnly />
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">{t('profile.phone')}</Label>
                     <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xxxxxxxxxx" />
                   </div>
 
@@ -107,7 +108,7 @@ export default function ProfileSettingsPage() {
 
                   <div className="flex justify-end">
                     <Button type="submit" disabled={saving}>
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving ? t('profile.saving') : t('profile.saveChanges')}
                     </Button>
                   </div>
                 </div>

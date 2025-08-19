@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useI18n } from "@/lib/i18n/useI18n"
 import {
   Dialog,
   DialogContent,
@@ -27,6 +28,7 @@ interface ExportDialogProps {
 }
 
 export function ExportDialog({ expenses, trigger }: ExportDialogProps) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [format, setFormat] = useState<"pdf" | "excel">("excel")
   const [dateRange, setDateRange] = useState("all")
@@ -95,7 +97,7 @@ export function ExportDialog({ expenses, trigger }: ExportDialogProps) {
       "Paid By": expense.paid_by_name,
       "Split Method": expense.split_method,
       "Expense Date": new Date(expense.expense_date).toLocaleDateString(),
-      Group: expense.group_name || "No Group",
+              Group: expense.group_name || t('settlements.noGroup'),
       "Participants Count": expense.participants.length,
       "Created Date": new Date(expense.created_at).toLocaleDateString(),
     }))

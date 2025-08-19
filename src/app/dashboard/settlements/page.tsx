@@ -14,8 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CreditCard, Calendar, ArrowRight, RefreshCw } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import type { Settlement, UserBalance } from "@/lib/types"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function SettlementsPage() {
+  const { t } = useI18n()
   const [settlements, setSettlements] = useState<Settlement[]>([])
   const [balances, setBalances] = useState<UserBalance[]>([])
   const [debts, setDebts] = useState<
@@ -99,13 +101,13 @@ export default function SettlementsPage() {
           {/* Header */}
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Settlements</h1>
-              <p className="text-muted-foreground">Track payments and settle debts</p>
+              <h1 className="text-3xl font-bold text-foreground">{t('settlements.pageTitle')}</h1>
+              <p className="text-muted-foreground">{t('settlements.pageSubtitle')}</p>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={recalculateBalances}>
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Recalculate
+                {t('settlements.recalculate')}
               </Button>
               <RecordSettlementDialog balances={balances} onSettlementRecorded={fetchData} />
             </div>
@@ -113,8 +115,8 @@ export default function SettlementsPage() {
 
           <Tabs defaultValue="balances" className="space-y-6">
             <TabsList>
-              <TabsTrigger value="balances">Balances</TabsTrigger>
-              <TabsTrigger value="history">Settlement History</TabsTrigger>
+              <TabsTrigger value="balances">{t('settlements.balances')}</TabsTrigger>
+              <TabsTrigger value="history">{t('settlements.settlementHistory')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="balances">
@@ -143,9 +145,9 @@ export default function SettlementsPage() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No settlements yet</h3>
+                    <h3 className="text-lg font-semibold mb-2">{t('settlements.noSettlements')}</h3>
                     <p className="text-muted-foreground mb-4">
-                      Record your first payment to start tracking settlements.
+                      {t('settlements.noSettlementsHint')}
                     </p>
                     <RecordSettlementDialog balances={balances} onSettlementRecorded={fetchData} />
                   </CardContent>
@@ -153,8 +155,8 @@ export default function SettlementsPage() {
               ) : (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Settlement History</CardTitle>
-                    <CardDescription>All recorded payments and settlements</CardDescription>
+                    <CardTitle>{t('settlements.historyTitle')}</CardTitle>
+                    <CardDescription>{t('settlements.historySubtitle')}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -185,7 +187,7 @@ export default function SettlementsPage() {
                                 {formatDistanceToNow(new Date(settlement.settlement_date), { addSuffix: true })}
                               </div>
                               {settlement.expense_title && (
-                                <div className="text-xs">For: {settlement.expense_title}</div>
+                                <div className="text-xs">{t('settlements.for')}: {settlement.expense_title}</div>
                               )}
                             </div>
                           </div>

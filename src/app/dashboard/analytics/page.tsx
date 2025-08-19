@@ -9,8 +9,10 @@ import { ExpenseSummary } from "@/components/analytics/expense-summary"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart3 } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function AnalyticsPage() {
+  const { t } = useI18n()
   const [loading, setLoading] = useState(true)
   const [groups, setGroups] = useState([])
   const [filters, setFilters] = useState({
@@ -127,9 +129,9 @@ export default function AnalyticsPage() {
           <div>
             <h1 className="text-3xl font-bold text-foreground flex items-center">
               <BarChart3 className="h-8 w-8 mr-3" />
-              Analytics & Reports
+              {t('analytics.pageTitle')}
             </h1>
-            <p className="text-muted-foreground">Insights into your spending patterns and financial habits</p>
+            <p className="text-muted-foreground">{t('analytics.pageSubtitle')}</p>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-4">
@@ -154,9 +156,9 @@ export default function AnalyticsPage() {
             <div className="lg:col-span-3">
               <Tabs defaultValue="overview" className="space-y-6">
                 <TabsList>
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="categories">Categories</TabsTrigger>
-                  <TabsTrigger value="trends">Trends</TabsTrigger>
+                  <TabsTrigger value="overview">{t('analytics.overview')}</TabsTrigger>
+                  <TabsTrigger value="categories">{t('analytics.categories')}</TabsTrigger>
+                  <TabsTrigger value="trends">{t('analytics.trends')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">
@@ -188,8 +190,8 @@ export default function AnalyticsPage() {
                         category: item.category.replace(/_/g, " ").replace(/&/g, "&"),
                       }))}
                       type="pie"
-                      title="Spending by Category"
-                      description="Breakdown of your expenses by category"
+                      title={t('analytics.spendingByCategory')}
+                      description={t('analytics.spendingByCategorySubtitle')}
                       dataKey="total_amount"
                       nameKey="category"
                     />
@@ -208,16 +210,16 @@ export default function AnalyticsPage() {
                         <SpendingChart
                           data={monthlyData}
                           type="bar"
-                          title="Monthly Spending"
-                          description="Your spending patterns over the last 12 months"
+                          title={t('analytics.monthlySpending')}
+                          description={t('analytics.monthlySpendingSubtitle')}
                           dataKey="paid_amount"
                           nameKey="month_name"
                         />
                         <SpendingChart
                           data={trendsData}
                           type="line"
-                          title="Daily Spending Trends"
-                          description={`Daily expense trends over the last ${filters.period} days`}
+                          title={t('analytics.dailySpendingTrends')}
+                          description={t('analytics.dailySpendingTrendsSubtitle')}
                           dataKey="total_amount"
                           nameKey="date"
                         />

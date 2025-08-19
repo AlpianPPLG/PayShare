@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown, Receipt, CreditCard, PieChart, Users } from "lucide-react"
+import { useI18n } from "@/lib/i18n/useI18n"
 
 interface ExpenseSummaryProps {
   summary: {
@@ -26,6 +27,7 @@ interface ExpenseSummaryProps {
 }
 
 export function ExpenseSummary({ summary, categoryData, settlementStats }: ExpenseSummaryProps) {
+  const { t } = useI18n()
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -57,29 +59,29 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expenses Paid</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.expensesPaid')}</CardTitle>
             <Receipt className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.expenses_paid}</div>
-            <p className="text-xs text-muted-foreground">Total: {formatCurrency(summary.total_paid)}</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.total')}: {formatCurrency(summary.total_paid)}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expenses Involved</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.expensesInvolved')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.expenses_involved}</div>
-            <p className="text-xs text-muted-foreground">You owe: {formatCurrency(summary.total_owed)}</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.youOwe')}: {formatCurrency(summary.total_owed)}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Balance</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.netBalance')}</CardTitle>
             {netBalance >= 0 ? (
               <TrendingUp className="h-4 w-4 text-green-600" />
             ) : (
@@ -90,18 +92,18 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
             <div className={`text-2xl font-bold ${netBalance >= 0 ? "text-green-600" : "text-red-600"}`}>
               {formatCurrency(Math.abs(netBalance))}
             </div>
-            <p className="text-xs text-muted-foreground">{netBalance >= 0 ? "You are owed" : "You owe"}</p>
+            <p className="text-xs text-muted-foreground">{netBalance >= 0 ? t('analytics.youAreOwed') : t('analytics.youOwe')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.recentActivity')}</CardTitle>
             <PieChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{summary.recent_expenses}</div>
-            <p className="text-xs text-muted-foreground">Last 30 days</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.last30Days')}</p>
           </CardContent>
         </Card>
       </div>
@@ -110,7 +112,7 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Top Spending Categories</CardTitle>
+            <CardTitle>{t('analytics.topSpendingCategories')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -122,7 +124,7 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
                       <p className="font-medium capitalize">
                         {category.category.replace(/_/g, " ").replace(/&/g, "&")}
                       </p>
-                      <p className="text-sm text-muted-foreground">{category.expense_count} expenses</p>
+                      <p className="text-sm text-muted-foreground">{category.expense_count} {t('analytics.expenses')}</p>
                     </div>
                   </div>
                   <Badge variant="outline">{formatCurrency(category.total_amount)}</Badge>
@@ -135,14 +137,14 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
         {/* Settlement Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Settlement Summary</CardTitle>
+            <CardTitle>{t('analytics.settlementSummary')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-4 w-4 text-green-600" />
-                  <span>Payments Made</span>
+                  <span>{t('analytics.paymentsMade')}</span>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">{settlementStats.payments_made}</p>
@@ -153,7 +155,7 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-4 w-4 text-blue-600" />
-                  <span>Payments Received</span>
+                  <span>{t('analytics.paymentsReceived')}</span>
                 </div>
                 <div className="text-right">
                   <p className="font-medium">{settlementStats.payments_received}</p>
@@ -163,13 +165,13 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
 
               <div className="pt-2 border-t">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium">Settlement Net</span>
+                  <span className="font-medium">{t('analytics.settlementNet')}</span>
                   <div className={`font-bold ${settlementNet >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {formatCurrency(Math.abs(settlementNet))}
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground text-right">
-                  {settlementNet >= 0 ? "Net received" : "Net paid"}
+                  {settlementNet >= 0 ? t('analytics.netPaid') : t('analytics.netPaid')}
                 </p>
               </div>
             </div>

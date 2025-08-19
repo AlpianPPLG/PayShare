@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { Button } from "@/components/ui/button"
 import { Loader2 as Spinner } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -43,6 +44,7 @@ interface CreateExpenseFormProps {
 
 export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }: CreateExpenseFormProps) {
   const { user } = useAuth()
+  const { t } = useI18n()
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselectedGroupId = searchParams.get("group")
@@ -190,22 +192,22 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
   }
 
   const validateForm = () => {
-    if (!title.trim()) return "Title is required"
-    if (!totalAmount || Number.parseFloat(totalAmount) <= 0) return "Valid amount is required"
-    if (!paidBy) return "Please select who paid"
-    if (participants.length === 0) return "At least one participant is required"
+    if (!title.trim()) return t('expenses.create.validation.titleRequired')
+    if (!totalAmount || Number.parseFloat(totalAmount) <= 0) return t('expenses.create.validation.validAmountRequired')
+    if (!paidBy) return t('expenses.create.validation.selectPayer')
+    if (participants.length === 0) return t('expenses.create.validation.participantsRequired')
 
     if (splitMethod === "exact") {
       const totalSplit = participants.reduce((sum, p) => sum + (p.amount || 0), 0)
       if (Math.abs(totalSplit - Number.parseFloat(totalAmount)) > 0.01) {
-        return "Split amounts must equal total amount"
+        return t('expenses.create.validation.splitAmountsEqual')
       }
     }
 
     if (splitMethod === "percentage") {
       const totalPercentage = participants.reduce((sum, p) => sum + (p.percentage || 0), 0)
       if (Math.abs(totalPercentage - 100) > 0.01) {
-        return "Percentages must add up to 100%"
+        return t('expenses.create.validation.percentagesEqual100')
       }
     }
 
@@ -268,7 +270,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
         setError(data.error || `Failed to ${isEditMode ? 'update' : 'create'} expense`)
       }
     } catch (error) {
-      setError("Network error")
+      setError(t('expenses.create.validation.networkError'))
     } finally {
       setLoading(false)
     }
@@ -330,11 +332,19 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
     <div className="max-w-4xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{isEditMode ? 'Edit Expense' : duplicateExpenseId ? 'Duplicate Expense' : 'Create New Expense'}</CardTitle>
+          <CardTitle>
+            {isEditMode 
+              ? t('expenses.create.editTitle') 
+              : duplicateExpenseId 
+                ? t('expenses.create.duplicateTitle') 
+                : t('expenses.create.title')
+            }
+          </CardTitle>
           <CardDescription>
             {duplicateExpenseId 
-              ? 'Edit the details below to create a copy of this expense'
-              : 'Record a shared expense and split it among participants'}
+              ? t('expenses.create.duplicateSubtitle')
+              : t('expenses.create.subtitle')
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -348,10 +358,10 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
             {/* Basic Information */}
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="title">Expense Title</Label>
+                <Label htmlFor="title">{t('expenses.create.titleLabel')}</Label>
                 <Input
                   id="title"
-                  placeholder="e.g., Dinner at Restaurant"
+                  placeholder={t('expenses.create.titlePlaceholder')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
@@ -360,7 +370,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="amount">Total Amount (IDR)</Label>
+                <Label htmlFor="amount">{t('expenses.create.amountLabel')}</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -374,7 +384,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{t('expenses.create.categoryLabel')}</Label>
                 <Select value={category} onValueChange={setCategory} disabled={loading}>
                   <SelectTrigger>
                     <SelectValue />
@@ -390,7 +400,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="date">Expense Date</Label>
+                <Label htmlFor="date">{t('expenses.create.dateLabel')}</Label>
                 <Input
                   id="date"
                   type="date"
@@ -403,10 +413,10 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description">{t('expenses.create.descriptionLabel')}</Label>
               <Textarea
                 id="description"
-                placeholder="Additional details about this expense..."
+                placeholder={t('expenses.create.descriptionPlaceholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={loading}
@@ -416,17 +426,17 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
 
             {/* Group Selection */}
             <div className="space-y-2">
-              <Label htmlFor="group">Group (Optional)</Label>
+              <Label htmlFor="group">{t('expenses.create.groupLabel')}</Label>
               <Select value={groupId} onValueChange={setGroupId} disabled={loading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a group or leave empty for personal expense" />
+                  <SelectValue placeholder={t('expenses.create.groupPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No Group (Personal)</SelectItem>
+                  <SelectItem value="none">{t('expenses.create.noGroup')}</SelectItem>
                   {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id.toString()}>
-                      {group.name} ({group.member_count} members)
-                    </SelectItem>
+                <SelectItem key={group.id} value={group.id.toString()}>
+                  {group.name} ({group.member_count} {t('groups.members')})
+                </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -434,7 +444,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
 
             {/* Paid By */}
             <div className="space-y-2">
-              <Label htmlFor="paidBy">Paid By</Label>
+              <Label htmlFor="paidBy">{t('expenses.create.paidByLabel')}</Label>
               <Select value={paidBy} onValueChange={setPaidBy} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue />
@@ -457,15 +467,15 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
 
             {/* Split Method */}
             <div className="space-y-4">
-              <Label>Split Method</Label>
+              <Label>{t('expenses.create.splitMethodLabel')}</Label>
               <div className="grid gap-3 md:grid-cols-3">
                 <Card
                   className={`cursor-pointer transition-colors ${splitMethod === "equal" ? "ring-2 ring-primary" : ""}`}
                   onClick={() => setSplitMethod("equal")}
                 >
                   <CardContent className="p-4 text-center">
-                    <h4 className="font-medium">Equal Split</h4>
-                    <p className="text-sm text-muted-foreground">Split equally among all participants</p>
+                    <h4 className="font-medium">{t('expenses.create.splitMethods.equal.label')}</h4>
+                    <p className="text-sm text-muted-foreground">{t('expenses.create.splitMethods.equal.description')}</p>
                   </CardContent>
                 </Card>
                 <Card
@@ -473,8 +483,8 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                   onClick={() => setSplitMethod("exact")}
                 >
                   <CardContent className="p-4 text-center">
-                    <h4 className="font-medium">Exact Amounts</h4>
-                    <p className="text-sm text-muted-foreground">Specify exact amount for each person</p>
+                    <h4 className="font-medium">{t('expenses.create.splitMethods.exact.label')}</h4>
+                    <p className="text-sm text-muted-foreground">{t('expenses.create.splitMethods.exact.description')}</p>
                   </CardContent>
                 </Card>
                 <Card
@@ -482,8 +492,8 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                   onClick={() => setSplitMethod("percentage")}
                 >
                   <CardContent className="p-4 text-center">
-                    <h4 className="font-medium">Percentage</h4>
-                    <p className="text-sm text-muted-foreground">Split by custom percentages</p>
+                    <h4 className="font-medium">{t('expenses.create.splitMethods.percentage.label')}</h4>
+                    <p className="text-sm text-muted-foreground">{t('expenses.create.splitMethods.percentage.description')}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -492,7 +502,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
             {/* Participants */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label>Participants</Label>
+                <Label>{t('expenses.create.participantsLabel')}</Label>
                 {groupId && (
                   <Button
                     type="button"
@@ -510,15 +520,15 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                     }}
                   >
                     <Users className="h-4 w-4 mr-2" />
-                    Add All Group Members
+                    {t('expenses.create.addAllMembers')}
                   </Button>
                 )}
               </div>
 
               {participants.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  <p>No participants added yet</p>
-                  <p className="text-sm">Select a group to add members automatically</p>
+                  <p>{t('expenses.create.noParticipants')}</p>
+                  <p className="text-sm">{t('expenses.create.selectGroupHint')}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -537,7 +547,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                           <Input
                             type="number"
                             step="0.01"
-                            placeholder="Amount"
+                            placeholder={t('expenses.create.splitMethods.exact.label')}
                             value={participant.amount || ""}
                             onChange={(e) =>
                               updateParticipantAmount(participant.user_id, Number.parseFloat(e.target.value) || 0)
@@ -551,7 +561,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                           <Input
                             type="number"
                             step="0.01"
-                            placeholder="Percentage"
+                            placeholder={t('expenses.create.splitMethods.percentage.label')}
                             value={participant.percentage || ""}
                             onChange={(e) =>
                               updateParticipantPercentage(participant.user_id, Number.parseFloat(e.target.value) || 0)
@@ -578,7 +588,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
             {preview.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Split Preview</CardTitle>
+                  <CardTitle className="text-lg">{t('expenses.create.previewTitle')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -590,7 +600,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                     ))}
                     <Separator />
                     <div className="flex justify-between items-center font-medium">
-                      <span>Total</span>
+                      <span>{t('expenses.create.total')}</span>
                       <span>{formatCurrency(Number.parseFloat(totalAmount) || 0)}</span>
                     </div>
                   </div>
@@ -607,16 +617,25 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
                 disabled={loading}
                 className="flex-1"
               >
-                Cancel
+                {t('expenses.create.actions.cancel')}
               </Button>
               <Button type="submit" disabled={loading} className="flex-1">
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditMode ? 'Updating...' : duplicateExpenseId ? 'Duplicating...' : 'Creating...'}
+                    {isEditMode 
+                      ? t('expenses.create.actions.updating') 
+                      : duplicateExpenseId 
+                        ? t('expenses.create.actions.duplicating') 
+                        : t('expenses.create.actions.creating')
+                    }
                   </>
                 ) : (
-                  isEditMode ? 'Update Expense' : duplicateExpenseId ? 'Duplicate Expense' : 'Create Expense'
+                  isEditMode 
+                    ? t('expenses.create.actions.update') 
+                    : duplicateExpenseId 
+                      ? t('expenses.create.actions.duplicate') 
+                      : t('expenses.create.actions.create')
                 )}
               </Button>
             </div>

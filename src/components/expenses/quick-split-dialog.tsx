@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/hooks/use-auth"
+import { useI18n } from "@/lib/i18n/useI18n"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -30,6 +31,7 @@ interface QuickSplitDialogProps {
 
 export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
   const { user } = useAuth()
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1) // 1: Basic Info, 2: Add People, 3: Split Details
 
@@ -287,14 +289,14 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
       <DialogTrigger asChild>
         <Button>
           <Zap className="h-4 w-4 mr-2" />
-          Quick Split
+          {t('expenses.quickSplit')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Quick Split - Step {step} of 3</DialogTitle>
+          <DialogTitle>{t('expenses.quickSplitDialog.title', { step })}</DialogTitle>
           <DialogDescription>
-            {step === 1 && "Enter basic expense information"}
+            {step === 1 && t('expenses.quickSplitDialog.subtitle')}
             {step === 2 && "Add people to split with"}
             {step === 3 && "Configure how to split the expense"}
           </DialogDescription>
@@ -311,10 +313,10 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">What's this expense for?</Label>
+                <Label htmlFor="title">{t('expenses.quickSplitDialog.expenseFor')}</Label>
                 <Input
                   id="title"
-                  placeholder="e.g., Dinner at Restaurant"
+                  placeholder={t('expenses.quickSplitDialog.expenseForPlaceholder')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   required
@@ -322,7 +324,7 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
               </div>
 
               <div>
-                <Label htmlFor="amount">How much was spent?</Label>
+                <Label htmlFor="amount">{t('expenses.quickSplitDialog.howMuch')}</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -336,7 +338,7 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">{t('expenses.quickSplitDialog.category')}</Label>
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger>
                       <SelectValue />
@@ -352,7 +354,7 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="date">When?</Label>
+                  <Label htmlFor="date">{t('expenses.quickSplitDialog.when')}</Label>
                   <Input
                     id="date"
                     type="date"
@@ -364,10 +366,10 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
               </div>
 
               <div>
-                <Label htmlFor="description">Description (Optional)</Label>
+                <Label htmlFor="description">{t('expenses.quickSplitDialog.description')}</Label>
                 <Textarea
                   id="description"
-                  placeholder="Additional details..."
+                  placeholder={t('expenses.quickSplitDialog.descriptionPlaceholder')}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
@@ -567,11 +569,11 @@ export function QuickSplitDialog({ onExpenseCreated }: QuickSplitDialogProps) {
             </div>
             <div className="space-x-2">
               <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+                {t('expenses.quickSplitDialog.cancel')}
               </Button>
               {step < 3 ? (
                 <Button onClick={handleNext} disabled={!validateStep()}>
-                  Next
+                  {t('expenses.quickSplitDialog.next')}
                 </Button>
               ) : (
                 <Button onClick={handleSubmit} disabled={loading || !validateStep()}>
