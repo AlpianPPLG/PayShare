@@ -4,34 +4,70 @@ import { executeQuery } from "../database"
 type QueryParam = string | number | Date | null | undefined
 
 export class AnalyticsModel {
-  // Get spending by category for a user
+  // Get spending by category for a user with detailed statistics
   static async getSpendingByCategory(userId: number, startDate?: Date, endDate?: Date) {
     let query = `
+      WITH user_expenses AS (
+        SELECT DISTINCT e.*
+        FROM expenses e
+        LEFT JOIN expense_participants ep ON e.id = ep.expense_id
+        WHERE (e.paid_by = ? OR ep.user_id = ?)
+        ${startDate ? ' AND e.expense_date >= ?' : ''}
+        ${endDate ? ' AND e.expense_date <= ?' : ''}
+      )
       SELECT 
         e.category,
         COUNT(*) as expense_count,
         SUM(e.total_amount) as total_amount,
-        AVG(e.total_amount) as avg_amount
-      FROM expenses e
-      LEFT JOIN expense_participants ep ON e.id = ep.expense_id
-      WHERE (e.paid_by = ? OR ep.user_id = ?)
-    `
-    const params: QueryParam[] = [userId, userId]
-
-    if (startDate) {
-      query += " AND e.expense_date >= ?"
-      params.push(startDate.toISOString().split('T')[0]) // Format as YYYY-MM-DD
-    }
-    if (endDate) {
-      query += " AND e.expense_date <= ?"
-      params.push(endDate.toISOString().split('T')[0]) // Format as YYYY-MM-DD
-    }
-
-    query += `
+        AVG(e.total_amount) as avg_amount,
+        MIN(e.total_amount) as min_amount,
+        MAX(e.total_amount) as max_amount,
+        COUNT(DISTINCT e.paid_by) as unique_payers,
+        (
+          SELECT COUNT(*) 
+          FROM user_expenses e2 
+          WHERE e2.category = e.category
+        ) as total_transactions,
+        (
+          SELECT e3.expense_date 
+          FROM user_expenses e3 
+          WHERE e3.category = e.category
+          ORDER BY e3.expense_date DESC 
+          LIMIT 1
+        ) as last_transaction_date,
+        (
+          SELECT e4.description 
+          FROM user_expenses e4 
+          WHERE e4.category = e.category
+          ORDER BY e4.total_amount DESC 
+          LIMIT 1
+        ) as largest_expense_desc,
+        (
+          SELECT e5.expense_date
+          FROM user_expenses e5
+          WHERE e5.category = e.category
+          ORDER BY e5.expense_date ASC
+          LIMIT 1
+        ) as first_transaction_date,
+        (
+          SELECT GROUP_CONCAT(DISTINCT u.name SEPARATOR ', ')
+          FROM user_expenses e6
+          JOIN users u ON e6.paid_by = u.id
+          WHERE e6.category = e.category
+          LIMIT 3
+        ) as top_payers
+      FROM user_expenses e
       GROUP BY e.category
       ORDER BY total_amount DESC
     `
-
+    
+    // Prepare parameters array
+    let params: QueryParam[] = [userId, userId]
+    
+    // Add date parameters
+    if (startDate) params.push(startDate.toISOString().split('T')[0])
+    if (endDate) params.push(endDate.toISOString().split('T')[0])
+    
     return executeQuery(query, params)
   }
 

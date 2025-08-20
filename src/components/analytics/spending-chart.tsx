@@ -7,11 +7,12 @@ import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
 interface SpendingChartProps {
   data: any[]
   type: "pie" | "bar" | "line"
-  title: string
+  title?: string
   description?: string
   dataKey: string
   nameKey: string
   colors?: string[]
+  showLegend?: boolean
 }
 
 const DEFAULT_COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D", "#FFC658"]
@@ -24,6 +25,7 @@ export function SpendingChart({
   dataKey,
   nameKey,
   colors = DEFAULT_COLORS,
+  showLegend = true,
 }: SpendingChartProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -124,13 +126,19 @@ export function SpendingChart({
     }
   }
 
+  const chartContent = renderChart()
+  
+  if (!title) {
+    return <>{chartContent}</>
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
-      <CardContent>{renderChart()}</CardContent>
+      <CardContent>{chartContent}</CardContent>
     </Card>
   )
 }

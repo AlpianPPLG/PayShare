@@ -187,12 +187,10 @@ export default function ExpenseDetailPage() {
       <ProtectedRoute>
         <DashboardLayout>
           <div className="space-y-6">
-            <Skeleton className="h-8 w-64" />
             <div className="grid gap-6 lg:grid-cols-3">
               <div className="lg:col-span-2">
                 <Skeleton className="h-96" />
               </div>
-              <Skeleton className="h-96" />
             </div>
           </div>
         </DashboardLayout>
@@ -205,12 +203,6 @@ export default function ExpenseDetailPage() {
       <ProtectedRoute>
         <DashboardLayout>
           <div className="space-y-6">
-            <Button variant="ghost" asChild>
-              <Link href="/dashboard/expenses">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t('expenseDetail.backToExpenses')}
-              </Link>
-            </Button>
             <Alert variant="destructive">
               <AlertDescription>{error || t('settlements.expenseNotFound')}</AlertDescription>
             </Alert>
@@ -231,22 +223,22 @@ export default function ExpenseDetailPage() {
       <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" asChild>
-                <Link href="/dashboard/expenses">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  {t('expenseDetail.backToExpenses')}
-                </Link>
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground flex items-center">
-                  <span className="text-2xl mr-3">{getCategoryIcon(expense.category)}</span>
-                  {expense.title}
-                </h1>
-                <p className="text-muted-foreground">{expense.description}</p>
-              </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard/expenses">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+              <h1 className="text-3xl font-bold text-foreground">
+                {expense.title}
+              </h1>
             </div>
+            <div className="flex items-center gap-3 ml-6">
+              <span className="text-2xl">{getCategoryIcon(expense.category)}</span>
+              {expense.description && <p className="text-muted-foreground">{expense.description}</p>}
+            </div>
+          </div>
+          
+          <div className="flex justify-end">
             <div className="flex space-x-2">
               <Button variant="outline" size="sm" onClick={handleShare} aria-live="polite">
                 {copied ? (

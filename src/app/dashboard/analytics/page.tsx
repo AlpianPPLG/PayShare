@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { SpendingChart } from "@/components/analytics/spending-chart"
 import { AnalyticsFilters } from "@/components/analytics/analytics-filters"
 import { ExpenseSummary } from "@/components/analytics/expense-summary"
+import { CategoryAnalytics } from "@/components/analytics/category-analytics"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart3 } from "lucide-react"
+import { BarChart3, PieChart } from "lucide-react"
 import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function AnalyticsPage() {
@@ -182,19 +184,40 @@ export default function AnalyticsPage() {
 
                 <TabsContent value="categories">
                   {loading ? (
-                    <Skeleton className="h-96" />
+                    <div className="space-y-4">
+                      <Skeleton className="h-96" />
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <Skeleton className="h-64" />
+                        <Skeleton className="h-64" />
+                      </div>
+                    </div>
                   ) : (
-                    <SpendingChart
-                      data={categoryData.map((item: any) => ({
-                        ...item,
-                        category: item.category.replace(/_/g, " ").replace(/&/g, "&"),
-                      }))}
-                      type="pie"
-                      title={t('analytics.spendingByCategory')}
-                      description={t('analytics.spendingByCategorySubtitle')}
-                      dataKey="total_amount"
-                      nameKey="category"
-                    />
+                    <div className="space-y-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>{t('analytics.categoryBreakdown')}</CardTitle>
+                          <CardDescription>{t('analytics.categoryBreakdownSubtitle')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <SpendingChart
+                            data={categoryData
+                              .sort((a: any, b: any) => b.expense_count - a.expense_count)
+                              .slice(0, 5)
+                              .map((item: any) => ({
+                                ...item,
+                                category: item.category.replace(/_/g, " ").replace(/&/g, "&"),
+                              }))}
+                            type="bar"
+                            dataKey="expense_count"
+                            nameKey="category"
+                            title={t('analytics.categoryBreakdown')}
+                            description={t('analytics.categoryBreakdownSubtitle')}
+                            showLegend={false}
+                          />
+                        </CardContent>
+                      </Card>
+                      <CategoryAnalytics data={categoryData} />
+                    </div>
                   )}
                 </TabsContent>
 
