@@ -7,7 +7,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
+  const { id } = await params
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -80,7 +80,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
+  const { id } = await params
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -214,7 +214,7 @@ export async function PUT(
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params
+  const { id } = await params
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
