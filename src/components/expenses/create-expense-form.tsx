@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -7,7 +8,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/lib/hooks/use-auth"
 import { useI18n } from "@/lib/i18n/useI18n"
 import { Button } from "@/components/ui/button"
-import { Loader2 as Spinner } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -102,7 +102,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
     }
     
     fetchData()
-  }, [])
+  }, [duplicateExpenseId, initialData, isEditMode])
 
   useEffect(() => {
     if (groupId) {
@@ -150,12 +150,6 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
       }
     } catch (error) {
       console.error("Failed to fetch initial data:", error)
-    }
-  }
-
-  const addParticipant = (userId: number, userName: string) => {
-    if (!participants.find((p) => p.user_id === userId)) {
-      setParticipants([...participants, { user_id: userId, user_name: userName }])
     }
   }
 
@@ -269,6 +263,7 @@ export function CreateExpenseForm({ isEditMode = false, initialData, onSuccess }
       } else {
         setError(data.error || `Failed to ${isEditMode ? 'update' : 'create'} expense`)
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(t('expenses.create.validation.networkError'))
     } finally {

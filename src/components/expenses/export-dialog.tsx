@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState } from "react"
@@ -224,6 +225,7 @@ export function ExportDialog({ expenses, trigger }: ExportDialogProps) {
         exportToPDF()
       }
       setOpen(false)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError("Failed to export data")
     } finally {

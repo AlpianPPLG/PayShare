@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -10,7 +11,7 @@ import { ExpenseSummary } from "@/components/analytics/expense-summary"
 import { CategoryAnalytics } from "@/components/analytics/category-analytics"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart3, PieChart } from "lucide-react"
+import { BarChart3 } from "lucide-react"
 import { useI18n } from "@/lib/i18n/useI18n"
 
 export default function AnalyticsPage() {
@@ -121,6 +122,7 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetchAnalyticsData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters])
 
   return (

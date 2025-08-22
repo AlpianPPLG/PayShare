@@ -76,6 +76,7 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
     }, 300)
 
     return () => clearTimeout(debounceTimer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, existingMemberIds])
 
   const handleAddMember = async () => {
@@ -106,6 +107,7 @@ export function AddMemberDialog({ groupId, existingMemberIds, onMemberAdded }: A
       } else {
         setError(data.error || "Failed to add member")
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError("Network error")
     } finally {

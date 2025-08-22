@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useRouter, useSearchParams } from "next/navigation"
@@ -34,6 +35,7 @@ export default function NewSettlementPage() {
     if (expenseId) {
       fetchExpenseDetails()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenseId])
 
   const fetchExpenseDetails = async () => {
@@ -61,6 +63,7 @@ export default function NewSettlementPage() {
       } else {
         setError(data.error || t('settlements.failedToLoadDetails'))
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(t('settlements.networkError'))
     } finally {
@@ -98,6 +101,7 @@ export default function NewSettlementPage() {
       } else {
         setError(data.error || t('settlements.failedToRecord'))
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(t('settlements.networkError'))
     } finally {

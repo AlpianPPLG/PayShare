@@ -75,6 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         return { success: false, error: data.error || "Login failed" }
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { success: false, error: "Network error" }
     }
@@ -99,6 +100,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         return { success: false, error: data.error || "Registration failed" }
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { success: false, error: "Network error" }
     }
@@ -131,6 +133,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } else {
         return { success: false, error: data.error || "Update failed" }
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return { success: false, error: "Network error" }
     }

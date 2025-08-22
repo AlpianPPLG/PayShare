@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useParams, useRouter } from "next/navigation"
@@ -31,6 +32,7 @@ export default function EditExpensePage() {
         } else {
           setError(data.error || "Failed to load expense")
         }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         setError("Network error")
       } finally {

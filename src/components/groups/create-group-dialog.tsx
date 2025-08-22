@@ -58,6 +58,7 @@ export function CreateGroupDialog({ onGroupCreated }: CreateGroupDialogProps) {
       } else {
         setError(data.error || "Failed to create group")
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError("Network error")
     } finally {

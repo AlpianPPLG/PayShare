@@ -116,7 +116,7 @@ export function ExpenseSummary({ summary, categoryData, settlementStats }: Expen
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {categoryData.slice(0, 5).map((category, index) => (
+              {categoryData.slice(0, 5).map((category) => (
                 <div key={category.category} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="text-lg">{getCategoryIcon(category.category)}</div>

@@ -47,17 +47,9 @@ export function RecordSettlementDialog({ balances, onSettlementRecorded }: Recor
       .toUpperCase()
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount)
-  }
-
   // Get users who owe money (positive net_balance)
-  const usersWhoOwe = balances.filter((b) => b.net_balance > 0)
   // Get users who are owed money (negative net_balance)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const usersWhoAreOwed = balances.filter((b) => b.net_balance < 0)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,6 +100,7 @@ export function RecordSettlementDialog({ balances, onSettlementRecorded }: Recor
       } else {
         setError(data.error || "Failed to record settlement")
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError("Network error")
     } finally {

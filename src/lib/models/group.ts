@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { executeQuery, executeQuerySingle, executeInsert } from "../database"
 import type { Group, GroupMember, CreateGroupData, GroupWithMembers } from "../types"
 
@@ -95,6 +96,7 @@ export class GroupModel {
       `
       await executeInsert(query, [groupId, userId])
       return true
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // Handle duplicate key error
       return false

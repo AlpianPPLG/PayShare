@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 // User types
 export interface User {

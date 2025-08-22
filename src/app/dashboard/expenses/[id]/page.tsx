@@ -82,6 +82,7 @@ export default function ExpenseDetailPage() {
       } else {
         setError(data.error || t('settlements.failedToLoad'))
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(t('settlements.networkError'))
     } finally {
@@ -107,6 +108,7 @@ export default function ExpenseDetailPage() {
       } else {
         setError(data.error || t('settlements.failedToDelete'))
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError(t('settlements.networkError'))
     }
@@ -160,6 +162,7 @@ export default function ExpenseDetailPage() {
       await navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // Fallback if clipboard API fails
       const textarea = document.createElement("textarea")
@@ -180,6 +183,7 @@ export default function ExpenseDetailPage() {
     if (expenseId) {
       fetchExpense()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenseId])
 
   if (loading) {

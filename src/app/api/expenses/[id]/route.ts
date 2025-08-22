@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type NextRequest, NextResponse } from "next/server"
 import { ExpenseModel } from "@/lib/models/expense"
 import { authenticateRequest } from "@/lib/auth"

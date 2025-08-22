@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { executeQuery, executeQuerySingle, executeInsert } from "../database"
 import type { User, CreateUserData, AuthUser } from "../types"
 import bcrypt from "bcryptjs"

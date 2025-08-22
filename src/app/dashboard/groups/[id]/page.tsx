@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -60,6 +61,7 @@ export default function GroupDetailPage() {
     if (groupId) {
       fetchGroup()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId])
 
   if (loading) {

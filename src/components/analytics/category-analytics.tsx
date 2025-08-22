@@ -32,6 +32,7 @@ export function CategoryAnalytics({ data }: CategoryAnalyticsProps) {
     try {
       const date = new Date(dateString)
       return format(date, 'PP', { locale: locale === 'id' ? id : undefined })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return dateString
     }
@@ -49,10 +50,6 @@ export function CategoryAnalytics({ data }: CategoryAnalyticsProps) {
   const totalSpent = data.reduce((sum, cat) => sum + cat.total_amount, 0)
   const avgPerCategory = totalSpent / (data.length || 1)
   const highestCategory = data[0] || null
-  const mostActiveCategory = [...data].sort((a, b) => b.expense_count - a.expense_count)[0] || null
-  const newestCategory = [...data].sort(
-    (a, b) => new Date(b.last_transaction_date).getTime() - new Date(a.last_transaction_date).getTime()
-  )[0] || null
 
   return (
     <div className="space-y-6">

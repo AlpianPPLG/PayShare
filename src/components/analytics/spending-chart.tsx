@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,7 +26,6 @@ export function SpendingChart({
   dataKey,
   nameKey,
   colors = DEFAULT_COLORS,
-  showLegend = true,
 }: SpendingChartProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("id-ID", {

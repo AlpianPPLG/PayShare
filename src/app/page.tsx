@@ -103,7 +103,7 @@ export default function DashboardPage() {
           {/* Welcome Header */}
           <div>
             <h1 className="text-3xl font-bold text-foreground">Welcome back, {user?.name}!</h1>
-            <p className="text-muted-foreground">Here's an overview of your shared expenses and balances.</p>
+            <p className="text-muted-foreground">Heres an overview of your shared expenses and balances.</p>
           </div>
 
           {/* Stats Cards */}

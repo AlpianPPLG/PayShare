@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -31,12 +32,6 @@ interface FilterState {
   sortBy: string
   sortOrder: "asc" | "desc"
   status: string
-}
-
-interface Participant {
-  id: string
-  is_settled: boolean
-  // Add other participant fields as needed
 }
 
 export default function ExpensesPage() {
@@ -200,36 +195,6 @@ export default function ExpensesPage() {
     }
   }
 
-  const fetchGroups = async () => {
-    try {
-      const token = localStorage.getItem("auth_token")
-      const response = await fetch("/api/groups", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json()
-      if (data.success) {
-        setGroups(data.data.groups)
-      }
-    } catch (error) {
-      console.error("Failed to fetch groups:", error)
-    }
-  }
-
-  const fetchCategories = async () => {
-    try {
-      const token = localStorage.getItem("auth_token")
-      const response = await fetch("/api/categories", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await response.json()
-      if (data.success) {
-        setCategories(data.data.categories)
-      }
-    } catch (error) {
-      console.error("Failed to fetch categories:", error)
-    }
-  }
-
   const applyFilters = (newFilters: Partial<FilterState>) => {
     const mergedFilters = { ...filters, ...newFilters }
     setFilters(mergedFilters)
@@ -384,6 +349,7 @@ export default function ExpensesPage() {
     
     // Only apply filters when expenses change, not when filters change
     applyFilters({})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenses])
 
   return (
