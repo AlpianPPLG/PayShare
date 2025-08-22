@@ -4,7 +4,7 @@ import { UserModel } from "@/lib/models/user"
 import { authenticateRequest } from "@/lib/auth"
 import type { ApiResponse } from "@/lib/types"
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -19,7 +19,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       )
     }
 
-    const groupId = Number.parseInt(params.id)
+    const { id } = await params
+    const groupId = Number.parseInt(id)
     if (isNaN(groupId)) {
       return NextResponse.json<ApiResponse>(
         {

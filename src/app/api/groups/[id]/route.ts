@@ -3,7 +3,7 @@ import { GroupModel } from "@/lib/models/group"
 import { authenticateRequest } from "@/lib/auth"
 import type { ApiResponse } from "@/lib/types"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -18,7 +18,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       )
     }
 
-    const groupId = Number.parseInt(params.id)
+    const { id } = await params
+    const groupId = Number.parseInt(id)
     if (isNaN(groupId)) {
       return NextResponse.json<ApiResponse>(
         {
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -83,7 +84,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       )
     }
 
-    const groupId = Number.parseInt(params.id)
+    const { id } = await params
+    const groupId = Number.parseInt(id)
     if (isNaN(groupId)) {
       return NextResponse.json<ApiResponse>(
         {
@@ -127,7 +129,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get("authorization")
     const payload = authenticateRequest(authHeader)
@@ -142,7 +144,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       )
     }
 
-    const groupId = Number.parseInt(params.id)
+    const { id } = await params
+    const groupId = Number.parseInt(id)
     if (isNaN(groupId)) {
       return NextResponse.json<ApiResponse>(
         {

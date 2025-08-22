@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
@@ -34,7 +34,7 @@ interface FilterState {
   status: string
 }
 
-export default function ExpensesPage() {
+function ExpensesContent() {
   const { t } = useI18n()
   const [expenses, setExpenses] = useState<ExpenseWithDetails[]>([])
   const [filteredExpenses, setFilteredExpenses] = useState<ExpenseWithDetails[]>([])
@@ -618,6 +618,25 @@ export default function ExpensesPage() {
             </div>
           </div>
         </div>
+      </DashboardLayout>
+    </ProtectedRoute>
+  )
+}
+
+export default function ExpensesPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardLayout>
+        <Suspense fallback={
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading expenses...</p>
+            </div>
+          </div>
+        }>
+          <ExpensesContent />
+        </Suspense>
       </DashboardLayout>
     </ProtectedRoute>
   )
